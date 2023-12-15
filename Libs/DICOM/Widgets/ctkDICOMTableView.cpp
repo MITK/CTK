@@ -726,7 +726,11 @@ void ctkDICOMTableView::setQuery(const QStringList &uids)
       qCritical() << Q_FUNC_INFO << "failed: Failed to execute query " << query.lastQuery() << " : " << query.lastError().text();
     }
 
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 2, 0))
+    d->dicomSQLModel.setQuery(std::move(query));
+#else
     d->dicomSQLModel.setQuery(query);
+#endif
     if (columnCountBefore == 0)
     {
       // columns have not been initialized yet

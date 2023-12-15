@@ -162,13 +162,13 @@ void ctkDICOMTesterPrivate::printProcessOutputs(const QString& program, QProcess
   out << "Process " << program << " is finished.\n";
 
   QByteArray standardOutput = process->readAllStandardOutput();
-  if (standardOutput.count())
+  if (standardOutput.size())
     {  
     out << "Standard Output:\n";
     out << standardOutput;
     }
   QByteArray standardError = process->readAllStandardError();
-  if (standardError.count())
+  if (standardError.size())
     {  
     out << "Standard Error:\n";
     out << standardError;
