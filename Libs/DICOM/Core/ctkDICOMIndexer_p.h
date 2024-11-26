@@ -267,8 +267,6 @@ public:
 Q_SIGNALS:
   void startWorker();
 
-//public Q_SLOTS:
-
 public:
   DICOMIndexingQueue RequestQueue;
   QThread WorkerThread;

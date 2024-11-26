@@ -16,9 +16,9 @@
 #include "ctkDICOMDatabase.h"
 #include "ctkDicomAvailableDataHelper.h"
 
-ctkDICOMHostMainLogic::ctkDICOMHostMainLogic(ctkHostedAppPlaceholderWidget* placeHolder, ctkDICOMAppWidget* dicomAppWidget, 
-                                             QWidget* placeHolderForControls) : 
-  QObject(placeHolder), 
+ctkDICOMHostMainLogic::ctkDICOMHostMainLogic(ctkHostedAppPlaceholderWidget* placeHolder, ctkDICOMAppWidget* dicomAppWidget,
+                                             QWidget* placeHolderForControls) :
+  QObject(placeHolder),
   PlaceHolderForHostedApp(placeHolder),
   DicomAppWidget(dicomAppWidget),
   PlaceHolderForControls(placeHolderForControls),
@@ -69,18 +69,18 @@ void ctkDICOMHostMainLogic::configureHostedApp()
 void ctkDICOMHostMainLogic::sendDataToHostedApp()
 {
  if ((this->Host) && (this->HostControls->validAppFileName()) && (ValidSelection))
-  {
+ {
     *Data = ctkDicomAppHosting::AvailableData(); // empty AvailableData structure (at least not with the same id...)
     foreach (const QString &str, SelectedFiles) {
       if (str.isEmpty())
         continue;
       qDebug() << str;
 
-      ctkDicomAvailableDataHelper::addToAvailableData(*Data, 
-        Host->objectLocatorCache(), 
+      ctkDicomAvailableDataHelper::addToAvailableData(*Data,
+        Host->objectLocatorCache(),
         str);
     }
- 
+
     SendData = true;
     if(this->Host->getApplicationState() == ctkDicomAppHosting::EXIT)
     {
@@ -95,7 +95,7 @@ void ctkDICOMHostMainLogic::sendDataToHostedApp()
     {
       publishSelectedData();
     }
-  }
+ }
 }
 
 void ctkDICOMHostMainLogic::onAppReady()

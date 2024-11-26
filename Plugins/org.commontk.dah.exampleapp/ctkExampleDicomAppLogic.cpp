@@ -97,19 +97,19 @@ void ctkExampleDicomAppLogic::do_something()
   connect(ui.LoadDataButton, SIGNAL(clicked()), this, SLOT(onLoadDataClicked()));
   connect(ui.CreateSecondaryCaptureButton, SIGNAL(clicked()), this, SLOT(onCreateSecondaryCapture()));
   try
-    {
+  {
     QRect preferred(50,50,100,100);
     qDebug() << "  Asking:getAvailableScreen";
     QRect rect = getHostInterface()->getAvailableScreen(preferred);
     qDebug() << "  got sth:" << rect.top();
     this->AppWidget->move(rect.topLeft());
     this->AppWidget->resize(rect.size());
-    }
+  }
   catch (const ctkRuntimeException& e)
-    {
+  {
     qCritical() << e.what();
     return;
-    }
+  }
   this->AppWidget->show();
 }
 
@@ -121,7 +121,7 @@ void ctkExampleDicomAppLogic::onStartProgress()
   // we need to create the button before we receive data from
   // the host, which happens immediately after calling
   // getHostInterface()->notifyStateChanged
-  do_something(); 
+  do_something();
 
   getHostInterface()->notifyStateChanged(ctkDicomAppHosting::INPROGRESS);
 }
@@ -187,13 +187,13 @@ void ctkExampleDicomAppLogic::onDataAvailable()
   QString s;
   const ctkDicomAppHosting::AvailableData& data = getIncomingAvailableData();
   if(this->AppWidget == 0)
-    {
+  {
     qCritical() << "Button is null!";
     return;
-    }
+  }
   s = "Received notifyDataAvailable with patients.count()= " + QString().setNum(data.patients.count());
   if(data.patients.count()>0)
-    {
+  {
     s=s+" name:"+data.patients.begin()->name+" studies.count(): "+QString().setNum(data.patients.begin()->studies.count());
     if(data.patients.begin()->studies.count()>0)
     {
@@ -231,7 +231,7 @@ void ctkExampleDicomAppLogic::onLoadDataClicked()
   }
   else
     return;
-  
+
   QString transfersyntax("1.2.840.10008.1.2.1");
   QList<QString> transfersyntaxlist;
   transfersyntaxlist.append(transfersyntax);
@@ -292,7 +292,7 @@ void ctkExampleDicomAppLogic::onCreateSecondaryCapture()
     preferredProtocols.append("file:");
     QString outputlocation = getHostInterface()->getOutputLocation(preferredProtocols);
     QString templatefilename = QDir(outputlocation).absolutePath();
-    if(templatefilename.isEmpty()==false) templatefilename.append('/'); 
+    if(templatefilename.isEmpty()==false) templatefilename.append('/');
     templatefilename.append("ctkdahscXXXXXX.jpg");
     QTemporaryFile *tempfile = new QTemporaryFile(templatefilename,this->AppWidget);
 
@@ -315,8 +315,8 @@ void ctkExampleDicomAppLogic::onCreateSecondaryCapture()
       qDebug() << "Created Uuid: " << getHostInterface()->generateUID();
 
       ctkDicomAppHosting::AvailableData resultData;
-      ctkDicomAvailableDataHelper::addToAvailableData(resultData, 
-        objectLocatorCache(), 
+      ctkDicomAvailableDataHelper::addToAvailableData(resultData,
+        objectLocatorCache(),
         tempfile->fileName());
 
       bool success = publishData(resultData, true);

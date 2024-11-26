@@ -31,22 +31,23 @@ ctkRequirePlugin::ctkRequirePlugin(ctkPluginPrivate* requestor,
                 resolution(res.isEmpty() ? ctkPluginConstants::RESOLUTION_MANDATORY : res),
                 pluginRange(range.isEmpty() ? ctkVersionRange::defaultVersionRange() : range)
 {
+
   if (resolution != ctkPluginConstants::RESOLUTION_MANDATORY &&
       resolution != ctkPluginConstants::RESOLUTION_OPTIONAL )
   {
-    QString what = QString(
-      "Invalid directive : '%1:=%2' in manifest header '%3: %4' of plugin "
-      "with id %5 (%6). The value must be either '%7' or '%8'.")
-      .arg(ctkPluginConstants::RESOLUTION_DIRECTIVE)
-      .arg(this->resolution)
-      .arg(ctkPluginConstants::REQUIRE_PLUGIN)
-      .arg(this->name)
-      .arg(requestor->id)
-      .arg(requestor->symbolicName)
-      .arg(ctkPluginConstants::RESOLUTION_MANDATORY)
-      .arg(ctkPluginConstants::RESOLUTION_OPTIONAL);
+    QString what = QString("Invalid directive : '")
+                   + ctkPluginConstants::RESOLUTION_DIRECTIVE + ":=" + this->resolution
+                   + "' in manifest header '"
+                   + ctkPluginConstants::REQUIRE_PLUGIN + ": " + this->name
+                   + "' of plugin with id " + QString::number(requestor->id)
+                   + " (" + requestor->symbolicName + ")"
+                   + ". The value must be either '"
+                   + ctkPluginConstants::RESOLUTION_MANDATORY + "' or '"
+                   + ctkPluginConstants::RESOLUTION_OPTIONAL  + "'.";
     throw ctkInvalidArgumentException(what);
   }
+
+
 }
 
 //----------------------------------------------------------------------------

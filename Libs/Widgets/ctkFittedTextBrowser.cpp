@@ -36,6 +36,7 @@ ctkFittedTextBrowserPrivate::ctkFittedTextBrowserPrivate(ctkFittedTextBrowser& o
   :q_ptr(&object)
 {
   this->Collapsed = true;
+  this->DisableMouseScroll = false;
   this->CollapsibleTextSetter = ctkFittedTextBrowserPrivate::Text;
   this->ShowDetailsText = ctkFittedTextBrowser::tr("Show details...");
   this->HideDetailsText = ctkFittedTextBrowser::tr("Hide details.");
@@ -153,7 +154,6 @@ ctkFittedTextBrowser::ctkFittedTextBrowser(QWidget* _parent)
 //-----------------------------------------------------------------------------
 ctkFittedTextBrowser::~ctkFittedTextBrowser()
 {
-
 }
 
 //-----------------------------------------------------------------------------
@@ -200,10 +200,10 @@ int ctkFittedTextBrowser::heightForWidth(int _width) const
 QSize ctkFittedTextBrowser::minimumSizeHint() const {
   QSize s(this->size().width(), 0);
   if (s.width() == 0)
-    {
+  {
     //s.setWidth(400); // arbitrary value
     return QTextBrowser::minimumSizeHint();
-    }
+  }
   s.setHeight(this->heightForWidth(s.width()));
   return s;
 }
@@ -218,9 +218,18 @@ void ctkFittedTextBrowser::resizeEvent(QResizeEvent* e)
 {
   this->QTextBrowser::resizeEvent(e);
   if (e->size().height() != this->heightForWidth(e->size().width()))
-    {
+  {
     this->heightForWidthMayHaveChanged();
-    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+void ctkFittedTextBrowser::wheelEvent(QWheelEvent *event)
+{
+  if (!this->disableMouseScroll())
+  {
+    this->QTextBrowser::wheelEvent(event);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -292,6 +301,20 @@ bool ctkFittedTextBrowser::collapsed() const
 {
   Q_D(const ctkFittedTextBrowser);
   return d->Collapsed;
+}
+
+//-----------------------------------------------------------------------------
+void ctkFittedTextBrowser::setDisableMouseScroll(bool disableMouseScroll)
+{
+  Q_D(ctkFittedTextBrowser);
+  d->DisableMouseScroll = disableMouseScroll;
+}
+
+//-----------------------------------------------------------------------------
+bool ctkFittedTextBrowser::disableMouseScroll() const
+{
+  Q_D(const ctkFittedTextBrowser);
+  return d->DisableMouseScroll;
 }
 
 //-----------------------------------------------------------------------------

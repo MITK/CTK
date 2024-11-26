@@ -823,7 +823,6 @@ void ctkDICOMBrowser::onQueryRetrieveFinished()
 //----------------------------------------------------------------------------
 void ctkDICOMBrowser::onRemoveAction()
 {
-  Q_D(ctkDICOMBrowser);
   this->removeSelectedItems(ctkDICOMModel::SeriesType);
 }
 
@@ -1094,7 +1093,7 @@ bool ctkDICOMBrowser::confirmDeleteSelectedUIDs(QStringList uids)
     return false;
   }
 
-  ctkMessageBox confirmDeleteDialog;
+  ctkMessageBox confirmDeleteDialog(this);
   QString message = tr("Do you want to delete the following selected items?");
 
   // calculate maximum number of rows that fit in the browser widget to have a reasonable limit
@@ -1190,25 +1189,25 @@ void ctkDICOMBrowser::onPatientsRightClicked(const QPoint &point)
 
   QString deleteString = tr("Delete");
   if (numPatients > 1)
-    {
+  {
     deleteString = tr("Delete %1 selected patients").arg(numPatients);
-    }
+  }
   QAction *deleteAction = new QAction(deleteString, patientsMenu);
   patientsMenu->addAction(deleteAction);
 
   QString exportString = tr("Export to file system");
   if (numPatients > 1)
-    {
+  {
     exportString = tr("Export %1 selected patients to file system").arg(numPatients);
-    }
+  }
   QAction *exportAction = new QAction(exportString, patientsMenu);
   patientsMenu->addAction(exportAction);
 
   QString sendString = tr("Send to DICOM server");
   if (numPatients > 1)
-    {
+  {
     sendString = tr("Send %1 selected patients to DICOM server").arg(numPatients);
-    }
+  }
 
   QAction* sendAction = new QAction(sendString, patientsMenu);
   if (this->isSendActionVisible())
@@ -1446,7 +1445,7 @@ void ctkDICOMBrowser::exportSeries(QString dirPath, QStringList uids)
         QString errorString = tr("Unable to create export destination directory:\n\n%1"
             "\n\nHalting export.")
             .arg(destinationDir);
-        ctkMessageBox createDirectoryErrorMessageBox;
+        ctkMessageBox createDirectoryErrorMessageBox(this);
         createDirectoryErrorMessageBox.setText(errorString);
         createDirectoryErrorMessageBox.setIcon(QMessageBox::Warning);
         createDirectoryErrorMessageBox.exec();
@@ -1496,7 +1495,7 @@ void ctkDICOMBrowser::exportSeries(QString dirPath, QStringList uids)
         QString errorString = tr("Export destination file already exists:\n\n%1"
             "\n\nHalting export.")
             .arg(destinationFileName);
-        ctkMessageBox copyErrorMessageBox;
+        ctkMessageBox copyErrorMessageBox(this);
         copyErrorMessageBox.setText(errorString);
         copyErrorMessageBox.setIcon(QMessageBox::Warning);
         copyErrorMessageBox.exec();
@@ -1512,12 +1511,12 @@ void ctkDICOMBrowser::exportSeries(QString dirPath, QStringList uids)
             "\n\nHalting export.")
             .arg(filePath)
             .arg(destinationFileName);
-        ctkMessageBox copyErrorMessageBox;
+        ctkMessageBox copyErrorMessageBox(this);
         copyErrorMessageBox.setText(errorString);
         copyErrorMessageBox.setIcon(QMessageBox::Warning);
         copyErrorMessageBox.exec();
         return;
-        }
+      }
 
       fileNumber++;
       d->ExportProgress->setValue(fileNumber);

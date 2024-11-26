@@ -69,11 +69,11 @@ public:
   virtual ~ctkCompleter();
 
   enum ModelFiltering
-    {
+  {
     FilterStartsWith=0,
     FilterContains,
     FilterWordStartsWith
-    };
+  };
 
   ModelFiltering modelFiltering()const;
   void setModelFiltering(ModelFiltering filter);
@@ -92,7 +92,7 @@ protected:
 
 private:
   Q_DECLARE_PRIVATE(ctkCompleter);
-  Q_DISABLE_COPY(ctkCompleter);  
+  Q_DISABLE_COPY(ctkCompleter);
 };
 
 Q_DECLARE_METATYPE(ctkCompleter::ModelFiltering)

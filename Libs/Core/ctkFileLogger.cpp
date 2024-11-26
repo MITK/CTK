@@ -128,16 +128,15 @@ void ctkFileLogger::logMessage(const QString& msg)
 {
   Q_D(ctkFileLogger);
   if (!d->Enabled)
-    {
+  {
     return;
-    }
+  }
   QFile f(d->FilePath);
   if (!f.open(QFile::Append))
-    {
+  {
     return;
-    }
+  }
   QTextStream s(&f);
   s << msg << ctk::endl;
   f.close();
 }
-

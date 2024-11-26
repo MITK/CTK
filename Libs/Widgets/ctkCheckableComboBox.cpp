@@ -55,12 +55,12 @@ public:
     {
       model->setData(index, QString::fromLatin1("separator"), Qt::AccessibleDescriptionRole);
       if (QStandardItemModel *m = qobject_cast<QStandardItemModel*>(model))
-        {
+      {
         if (QStandardItem *item = m->itemFromIndex(index))
-          {
+        {
           item->setFlags(item->flags() & ~(Qt::ItemIsSelectable|Qt::ItemIsEnabled));
-          }
         }
+      }
     }
 
 protected:
@@ -69,31 +69,31 @@ protected:
                const QModelIndex &index) const
     {
       if (isSeparator(index))
-        {
+      {
         QRect rect = option.rect;
 
         if (const QAbstractItemView *view = qobject_cast<const QAbstractItemView*>(option.widget))
-          {
+        {
           rect.setWidth(view->viewport()->width());
-          }
+        }
         QStyleOption opt;
         opt.rect = rect;
         this->ComboBox->style()->drawPrimitive(QStyle::PE_IndicatorToolBarSeparator, &opt, painter, this->ComboBox);
-        }
+      }
       else
-        {
+      {
         QItemDelegate::paint(painter, option, index);
-        }
+      }
     }
 
     QSize sizeHint(const QStyleOptionViewItem &option,
                    const QModelIndex &index) const
     {
       if (isSeparator(index))
-        {
+      {
         int pm = this->ComboBox->style()->pixelMetric(QStyle::PM_DefaultFrameWidth, 0, this->ComboBox);
         return QSize(pm, pm);
-        }
+      }
       return this->QItemDelegate::sizeHint(option, index);
     }
 private:
@@ -107,6 +107,7 @@ class ctkCheckableComboBoxPrivate
 protected:
   ctkCheckableComboBox* const q_ptr;
   QModelIndexList checkedIndexes()const;
+  QModelIndexList paritiallyCheckedIndexes()const;
   QModelIndexList uncheckedIndexes()const;
 
 public:
@@ -142,7 +143,7 @@ void ctkCheckableComboBoxPrivate::init()
   Q_Q(ctkCheckableComboBox);
   this->CheckableModelHelper = new ctkCheckableModelHelper(Qt::Horizontal, q);
   this->CheckableModelHelper->setForceCheckability(true);
-  
+
   q->setCheckableModel(q->model());
   q->view()->installEventFilter(q);
   q->view()->viewport()->installEventFilter(q);
@@ -158,9 +159,9 @@ void ctkCheckableComboBoxPrivate::updateCheckedList()
   QList<QPersistentModelIndex> newCheckedPersistentList =
     this->modelIndexesToPersistentIndexes(this->checkedIndexes());
   if (newCheckedPersistentList == this->CheckedList)
-    {
+  {
     return;
-    }
+  }
   this->CheckedList = newCheckedPersistentList;
   emit q->checkedIndexesChanged();
 }
@@ -171,13 +172,13 @@ QList<QPersistentModelIndex> ctkCheckableComboBoxPrivate
 {
   QList<QPersistentModelIndex> res;
   foreach(const QModelIndex& index, indexes)
-    {
+  {
     QPersistentModelIndex persistent(index);
     if (persistent.isValid())
-      {
+    {
       res << persistent;
-      }
     }
+  }
   return res;
 }
 
@@ -188,12 +189,12 @@ QModelIndexList ctkCheckableComboBoxPrivate
 {
   QModelIndexList res;
   foreach(const QPersistentModelIndex& index, indexes)
-    {
+  {
     if (index.isValid())
-      {
+    {
       res << index;
-      }
     }
+  }
   return res;
 }
 
@@ -210,7 +211,17 @@ QModelIndexList ctkCheckableComboBoxPrivate::checkedIndexes()const
   QModelIndex startIndex = q->model()->index(0,0, q->rootModelIndex());
   return q->model()->match(
     startIndex, Qt::CheckStateRole,
-    static_cast<int>(Qt::Checked), -1, Qt::MatchRecursive);
+      static_cast<int>(Qt::Checked), -1, Qt::MatchRecursive);
+}
+
+//-----------------------------------------------------------------------------
+QModelIndexList ctkCheckableComboBoxPrivate::paritiallyCheckedIndexes() const
+{
+Q_Q(const ctkCheckableComboBox);
+  QModelIndex startIndex = q->model()->index(0,0, q->rootModelIndex());
+  return q->model()->match(
+    startIndex, Qt::CheckStateRole,
+      static_cast<int>(Qt::PartiallyChecked), -1, Qt::MatchRecursive);
 }
 
 //-----------------------------------------------------------------------------
@@ -242,45 +253,45 @@ bool ctkCheckableComboBox::eventFilter(QObject *o, QEvent *e)
 {
   Q_D(ctkCheckableComboBox);
   switch (e->type())
-    {
+  {
     case QEvent::MouseButtonPress:
-      {
+    {
       if (this->view()->isVisible())
-        {
-        d->MouseButtonPressed = true;
-        }
-      break;
-      }
-    case QEvent::MouseButtonRelease:
       {
+        d->MouseButtonPressed = true;
+      }
+      break;
+    }
+    case QEvent::MouseButtonRelease:
+    {
       QMouseEvent *m = static_cast<QMouseEvent *>(e);
-      if (this->view()->isVisible() && 
+      if (this->view()->isVisible() &&
           this->view()->rect().contains(m->pos()) &&
           this->view()->currentIndex().isValid()
           //&& !blockMouseReleaseTimer.isActive()
           && (this->view()->currentIndex().flags() & Qt::ItemIsEnabled)
           && (this->view()->currentIndex().flags() & Qt::ItemIsSelectable))
-        {
+      {
         // The signal to open the menu is fired when the mouse button is
         // pressed, we don't want to toggle the item under the mouse cursor
         // when the button used to open the popup is released.
         if (d->MouseButtonPressed)
-          {
+        {
           // make the item current, it will then call QComboBox::update (and
           // repaint) when the current index data is changed (checkstate
           // toggled fires dataChanged signal which is observed).
           this->setCurrentIndex(this->view()->currentIndex().row());
           d->CheckableModelHelper->toggleCheckState(this->view()->currentIndex());
-          }
+        }
         d->MouseButtonPressed = false;
         return true;
-        }
+      }
       d->MouseButtonPressed = false;
       break;
-      } 
+    }
     default:
         break;
-    }
+  }
   return this->QComboBox::eventFilter(o, e);
 }
 
@@ -291,9 +302,9 @@ void ctkCheckableComboBox::setCheckableModel(QAbstractItemModel* newModel)
   this->disconnect(this->model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                    this, SLOT(onDataChanged(QModelIndex,QModelIndex)));
   if (newModel != this->model())
-    {
+  {
     this->setModel(newModel);
-    }
+  }
   this->connect(this->model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                 this, SLOT(onDataChanged(QModelIndex,QModelIndex)));
   d->CheckableModelHelper->setModel(newModel);
@@ -317,14 +328,21 @@ QModelIndexList ctkCheckableComboBox::checkedIndexes()const
 bool ctkCheckableComboBox::allChecked()const
 {
   Q_D(const ctkCheckableComboBox);
-  return d->uncheckedIndexes().count() == 0;
+  return d->checkedIndexes().count() == this->count();
+}
+
+//-----------------------------------------------------------------------------
+bool ctkCheckableComboBox::allPatiallyChecked() const
+{
+  Q_D(const ctkCheckableComboBox);
+  return d->paritiallyCheckedIndexes().count() == this->count();
 }
 
 //-----------------------------------------------------------------------------
 bool ctkCheckableComboBox::noneChecked()const
 {
   Q_D(const ctkCheckableComboBox);
-  return d->cachedCheckedIndexes().count() == 0;
+  return d->uncheckedIndexes().count() == this->count();
 }
 
 //-----------------------------------------------------------------------------
@@ -369,38 +387,48 @@ void ctkCheckableComboBox::paintEvent(QPaintEvent *)
   QStyleOptionComboBox opt;
   this->initStyleOption(&opt);
 
-  if (this->allChecked())
-    {
-    opt.currentText = tr("All");
+  if (this->count() == 0 || d->uncheckedIndexes().count() + d->paritiallyCheckedIndexes().count() == this->count())
+  {
+    opt.currentText = ctkCheckableComboBox::tr("None");
     opt.currentIcon = QIcon();
-    }
-  else if (this->noneChecked())
-    {
-    opt.currentText = tr("None");
+  }
+  else if (d->checkedIndexes().count() + d->paritiallyCheckedIndexes().count() == this->count())
+  {
+    opt.currentText = ctkCheckableComboBox::tr("All");
     opt.currentIcon = QIcon();
-    }
+  }
   else
-    {
+  {
     //search the checked items
     QModelIndexList indexes = d->cachedCheckedIndexes();
     if (indexes.count() == 1)
-      {
+    {
       opt.currentText = this->model()->data(indexes[0], Qt::DisplayRole).toString();
       opt.currentIcon = qvariant_cast<QIcon>(this->model()->data(indexes[0], Qt::DecorationRole));
-      }
+    }
     else
-      {
+    {
       QStringList indexesText;
       foreach(QModelIndex checkedIndex, indexes)
-        {
+      {
         indexesText << this->model()->data(checkedIndex, Qt::DisplayRole).toString();
-        }
+      }
       opt.currentText = indexesText.join(", ");
       opt.currentIcon = QIcon();
-      }
     }
+  }
   painter.drawComplexControl(QStyle::CC_ComboBox, opt);
 
   // draw the icon and text
   painter.drawControl(QStyle::CE_ComboBoxLabel, opt);
+}
+
+//-----------------------------------------------------------------------------
+void ctkCheckableComboBox::keyReleaseEvent(QKeyEvent *event)
+{
+  QComboBox::keyReleaseEvent(event);
+  if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return)
+  {
+    emit this->returnRelease();
+  }
 }

@@ -528,12 +528,12 @@ ctkPluginContext* ctkPluginFrameworkLauncher::startup(QRunnable* endSplashHandle
   d->loadBasicPlugins();
 
   d->running = true;
-  
+
   if (endSplashHandler != NULL)
   {
     endSplashHandler->run();
   }
-  
+
   return d->fwFactory->getFramework()->getPluginContext();
 }
 
@@ -816,4 +816,3 @@ QStringList ctkPluginFrameworkLauncher::getPluginSymbolicNames(const QString& se
 
   return result;
 }
-

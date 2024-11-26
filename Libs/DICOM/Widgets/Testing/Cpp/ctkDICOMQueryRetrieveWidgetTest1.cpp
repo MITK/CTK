@@ -32,24 +32,31 @@
 int ctkDICOMQueryRetrieveWidgetTest1( int argc, char * argv [] )
 {
   QApplication app(argc, argv);
- 
+
+  QStringList arguments = app.arguments();
+  QString testName = arguments.takeFirst();
+  Q_UNUSED(testName);
+
+  bool interactive = arguments.removeOne("-I");
+
   QSharedPointer<ctkDICOMDatabase> dicomDatabase;
   ctkDICOMQueryRetrieveWidget widget;
   widget.setRetrieveDatabase(dicomDatabase);
   if (widget.retrieveDatabase() != dicomDatabase)
-    {
+  {
     std::cerr << "ctkDICOMQueryRetrieveDatabase::setRetrieveDatabase failed."
               << std::endl;
-    }
+    return EXIT_FAILURE;
+  }
 
   widget.query();
   widget.retrieve();
   widget.show();
 
-  if (argc <= 1 || QString(argv[1]) != "-I")
-    {
+  if (!interactive)
+  {
     QTimer::singleShot(200, &app, SLOT(quit()));
-    }
+  }
 
   return app.exec();
 }

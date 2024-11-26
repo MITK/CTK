@@ -2,7 +2,7 @@
 
   Library: CTK
 
-  Copyright (c) Brigham and Women's Hospital (BWH) 
+  Copyright (c) Brigham and Women's Hospital (BWH)
   Copyright (c) University of Sheffield
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -52,13 +52,13 @@ public:
   Q_INVOKABLE void setFile (const QString& fileName);
 
   enum ColumnIndex
-    {
+  {
     TagColumn = 0,
     AttributeColumn = 1,
     ValueColumn = 2,
     VRColumn = 3,
     LengthColumn = 4
-    };
+  };
 
 protected:
   QScopedPointer<ctkDICOMObjectModelPrivate> d_ptr;

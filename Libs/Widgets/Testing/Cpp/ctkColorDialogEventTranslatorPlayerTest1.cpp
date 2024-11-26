@@ -43,13 +43,13 @@ namespace
 {
 //-----------------------------------------------------------------------------
 void checkFinalWidgetState(void* data)
-  {
+{
   ctkColorDialog* widget = reinterpret_cast<ctkColorDialog*>(data);
 
   CTKCOMPARE(widget->customColor(0), QColor::fromRgb(0,255,127));
   CTKCOMPARE(widget->customColor(2), QColor::fromRgb(255,255,255));
   CTKCOMPARE(widget->selectedColor(), QColor(128, 255, 60));
-  }
+}
 }
 
 //-----------------------------------------------------------------------------
@@ -72,11 +72,10 @@ int ctkColorDialogEventTranslatorPlayerTest1(int argc, char * argv [] )
 
   // ------------------------
   if (argc < 2 || QString(argv[1]) != "-I")
-    {
+  {
     QTimer::singleShot(0, &etpWidget, SLOT(play()));
-    }
+  }
 
   etpWidget.show();
   return app.exec();
 }
-

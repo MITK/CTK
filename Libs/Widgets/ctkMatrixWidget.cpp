@@ -82,7 +82,7 @@ public:
 #else
     switch(value.type())
 #endif
-      {
+    {
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
       case QMetaType::Double:
 #else
@@ -91,7 +91,7 @@ public:
         return locale.toString(value.toDouble(), 'f', matrix->decimals());
       default:
         return this->QStyledItemDelegate::displayText(value, locale);
-      }
+    }
   }
 };
 
@@ -205,23 +205,23 @@ void ctkMatrixWidgetPrivate::validateItems()
 {
   Q_Q(ctkMatrixWidget);
   for (int i=0; i < q->rowCount(); ++i)
-    {
+  {
     for (int j=0; j < q->columnCount(); ++j)
-      {
+    {
       QTableWidgetItem* item = this->Table->item(i, j);
       if (!item)
-        {
+      {
         this->Table->setItem(i, j , this->Table->itemPrototype()->clone());
         this->setIdentityItem(i, j);
-        }
+      }
       else
-        {
+      {
         double value = item->data(Qt::DisplayRole).toDouble();
         item->setData(Qt::DisplayRole,
                       qBound(this->Minimum, value, this->Maximum));
-        }
       }
     }
+  }
 }
 
 // --------------------------------------------------------------------------
@@ -247,21 +247,21 @@ void ctkMatrixWidgetPrivate::updateGeometries()
   int lastColWidth = colWidth
     + (viewportSize.width() - colWidth * ccount);
   for (int j=0; j < ccount; j++)
-    {
+  {
     bool lastColumn = (j==(ccount-1));
     int newWidth = lastColumn ? lastColWidth : colWidth;
     this->Table->setColumnWidth(j, newWidth);
-    }
+  }
   // rows
   const int rcount = q->rowCount();
   int rowHeight = viewportSize.height() / rcount;
   int lastRowHeight = rowHeight + (viewportSize.height() - rowHeight * rcount);
   for (int i=0; i < rcount; i++)
-    {
+  {
     bool lastRow = (i==(rcount-1));
     int newHeight = lastRow ? lastRowHeight : rowHeight;
     this->Table->setRowHeight(i, newHeight);
-    }
+  }
   this->Table->updateGeometry();
 }
 
@@ -384,9 +384,9 @@ void ctkMatrixWidget::setDecimals(int decimals)
 {
   Q_D(ctkMatrixWidget);
   if (d->Decimals == decimals)
-    {
+  {
     return;
-    }
+  }
   d->Decimals = qMax(0, decimals);
   this->update();
   this->emit decimalsChanged(d->Decimals);
@@ -413,14 +413,14 @@ QSize ctkMatrixWidget::minimumSizeHint() const
   Q_D(const ctkMatrixWidget);
   int maxWidth = d->Table->horizontalHeader()->sectionSizeHint(0);
   for (int j = 1; j < this->columnCount(); ++j)
-    {
+  {
     maxWidth = qMax(maxWidth, d->Table->horizontalHeader()->sectionSizeHint(j));
-    }
+  }
   int maxHeight = d->Table->verticalHeader()->sectionSizeHint(0);
   for (int i = 1; i < this->rowCount(); ++i)
-    {
+  {
     maxHeight = qMax(maxHeight, d->Table->verticalHeader()->sectionSizeHint(i));
-    }
+  }
   return QSize(maxWidth*this->columnCount(), maxHeight*this->rowCount());
 }
 
@@ -444,12 +444,12 @@ void ctkMatrixWidget::identity()
   Q_D(ctkMatrixWidget);
   // Initialize 4x4 matrix
   for (int i=0; i < this->rowCount(); i++)
-    {
+  {
     for (int j=0; j < this->columnCount(); j++)
-      {
+    {
       d->setIdentityItem(i,j);
-      }
     }
+  }
 }
 
 // --------------------------------------------------------------------------
@@ -479,12 +479,12 @@ QVector<double> ctkMatrixWidget::values()const
   QVector<double> values;
 
   for (int i=0; i < this->rowCount(); i++)
-    {
+  {
     for (int j=0; j < this->columnCount(); j++)
-      {
+    {
       values.push_back(this->value(i,j));
-      }
     }
+  }
 
   return values;
 }
@@ -499,23 +499,23 @@ void ctkMatrixWidget::setValues(const QVector<double> & vector)
   bool blocked = this->blockSignals(true);
   bool modified = false;
   for (int row=0; row < this->rowCount(); ++row)
-    {
+  {
     for (int column=0; column < this->columnCount(); ++column)
-      {
+    {
       double newValue = vector.at(row * this->columnCount() + column);
       newValue = qBound(d->Minimum, newValue, d->Maximum);
       if (newValue != this->value(row, column))
-        {
+      {
         this->setValue(row, column, newValue);
         modified = true;
-        }
       }
     }
+  }
   this->blockSignals(blocked);
   if (modified)
-    {
+  {
     this->emit matrixChanged();
-    }
+  }
 }
 
 // --------------------------------------------------------------------------

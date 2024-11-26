@@ -250,4 +250,3 @@ ctkObjectClassDefinitionPtr ctkEAMetaTypeProvider::getObjectClassDefinition(cons
 
   return ocd;
 }
-

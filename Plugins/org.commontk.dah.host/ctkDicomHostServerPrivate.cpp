@@ -58,31 +58,31 @@ void ctkDicomHostServerPrivate::incomingWSDLMessage(
   const QString& message, QString* reply)
 {
   if (message == "?wsdl")
-    {
+  {
     QFile wsdlfile(":/dah/HostService-20100825.wsdl");
     wsdlfile.open(QFile::ReadOnly | QFile::Text);
     if(wsdlfile.isOpen())
-      {
+    {
       QTextStream textstream(&wsdlfile);
       *reply = textstream.readAll();
       QString actualURL="http://localhost:";
       //actualURL+=QString::number(this->Port)+"/HostInterface"; // FIXME: has to be replaced by url provided by host
-	  actualURL+=QString::number(this->Port)+Path; 
+	  actualURL+=QString::number(this->Port)+Path;
       reply->replace("REPLACE_WITH_ACTUAL_URL",actualURL);
       reply->replace("HostService-20100825.xsd",actualURL+"?xsd=1");
       //reply->replace("<soap:body use=\"literal\"/>","<soap:body use=\"literal\"></soap:body>");
-      }
     }
+  }
   else if (message == "?xsd=1")
-    {
+  {
     QFile wsdlfile(":/dah/HostService-20100825.xsd");
     wsdlfile.open(QFile::ReadOnly | QFile::Text);
     if(wsdlfile.isOpen())
-      {
+    {
       QTextStream textstream(&wsdlfile);
       *reply = textstream.readAll();
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------

@@ -1,10 +1,10 @@
 # Common Toolkit
 
-[![CircleCI Status][circleci-badge]][circleci-link]
+[![Actions Status][actions-badge]][actions-link]
 [![License][license-badge]][license-link]
 
-[circleci-badge]: https://dl.circleci.com/status-badge/img/gh/commontk/CTK/tree/master.svg?style=shield
-[circleci-link]: https://dl.circleci.com/status-badge/redirect/gh/commontk/CTK/tree/master
+[actions-badge]: https://github.com/commontk/CTK/actions/workflows/ci.yml/badge.svg
+[actions-link]: https://github.com/commontk/CTK/actions
 
 [license-badge]: https://img.shields.io/github/license/commontk/CTK?color=blue
 [license-link]: https://github.com/commontk/CTK/blob/master/LICENSE
@@ -118,5 +118,4 @@ By utilizing this integrated approach, CTK facilitates the management and custom
 
 ## License
 
-CTK code is licensed under Apache 2.0. This means that users of CTK are allowed to use the code for academic, commercial, or other purposes without paying license fees or being restricted in their ability to redistribute their code or keep it private. 
-
+CTK code is licensed under Apache 2.0. This means that users of CTK are allowed to use the code for academic, commercial, or other purposes without paying license fees or being restricted in their ability to redistribute their code or keep it private.

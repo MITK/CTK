@@ -33,19 +33,18 @@ int ctkSingletonTest1(int argc, char * argv [] )
 {
   Q_UNUSED(argc);
   Q_UNUSED(argv);
-  
+
   if (!ctkSingletonTestHelper::instance())
-    {
+  {
     std::cerr << "Problem with ctkSingletonTestHelper::instance()" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   ctkSingletonTestHelper::instance()->registerNorthFace();
   ctkSingletonTestHelper::instance()->registerNorthFace();
   if (ctkSingletonTestHelper::instance()->northFaceCount() != 2)
-    {
+  {
     std::cerr << "Problem with ctkSingletonTestHelper" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   return EXIT_SUCCESS;
 }
-

@@ -21,6 +21,10 @@
 // Qt includes
 #include <QCoreApplication>
 #include <QDir>
+#include <QTemporaryDir>
+
+// ctkCore includes
+#include <ctkCoreTestingMacros.h>
 
 // ctkDICOMCore includes
 #include "ctkDICOMDatabase.h"
@@ -34,17 +38,23 @@ int ctkDICOMDatabaseTest5( int argc, char * argv [] )
 {
   QCoreApplication app(argc, argv);
 
-  if (argc < 2)
-    {
-    std::cerr << "ctkDICOMDatabaseTest2: missing dicom filePath argument";
-    std::cerr << std::endl;
-    return EXIT_FAILURE;
-    }
+  QStringList arguments = app.arguments();
+  QString testName = arguments.takeFirst();
 
-  QString dicomFilePath(argv[1]);
+  if (arguments.count() != 1)
+  {
+    std::cerr << "Usage: " << qPrintable(testName)
+              << " <path-to-dicom-file>" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  QString dicomFilePath(arguments.at(0));
+
+  QTemporaryDir tempDirectory;
+  CHECK_BOOL(tempDirectory.isValid(), true);
 
   ctkDICOMDatabase database;
-  QDir databaseDirectory = QDir::temp();
+  QDir databaseDirectory(tempDirectory.path());
   databaseDirectory.remove("ctkDICOMDatabase.sql");
   databaseDirectory.remove("ctkDICOMTagCache.sql");
 
@@ -54,10 +64,10 @@ int ctkDICOMDatabaseTest5( int argc, char * argv [] )
   bool res = database.initializeDatabase();
 
   if (!res)
-    {
+  {
     std::cerr << "ctkDICOMDatabase::initializeDatabase() failed." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   std::cerr << "Database is in " << databaseDirectory.path().toStdString() << std::endl;
 
 
@@ -94,11 +104,11 @@ int ctkDICOMDatabaseTest5( int argc, char * argv [] )
   QString filePathInDatabase = database.fileForInstance(instanceUID);
 
   if (filePathInDatabase != secondDestination)
-    {
+  {
     std::cerr << "ctkDICOMDatabase thinks instance is in " << filePathInDatabase.toStdString() << std::endl;
     std::cerr << "But we just inserted it from " << secondDestination.toStdString() << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   //
   // Close and clean up

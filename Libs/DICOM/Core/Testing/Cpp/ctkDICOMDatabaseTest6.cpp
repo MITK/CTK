@@ -21,6 +21,11 @@
 // Qt includes
 #include <QCoreApplication>
 #include <QDir>
+#include <QSignalSpy>
+#include <QTemporaryDir>
+
+// ctkCore includes
+#include <ctkCoreTestingMacros.h>
 
 // ctkDICOMCore includes
 #include "ctkDICOMDatabase.h"
@@ -34,17 +39,23 @@ int ctkDICOMDatabaseTest6( int argc, char * argv [] )
 {
   QCoreApplication app(argc, argv);
 
-  if (argc < 2)
-    {
-    std::cerr << "ctkDICOMDatabaseTest6: missing dicom filePath argument";
-    std::cerr << std::endl;
-    return EXIT_FAILURE;
-    }
+  QStringList arguments = app.arguments();
+  QString testName = arguments.takeFirst();
 
-  QString dicomFilePath(argv[1]);
+  if (arguments.count() != 1)
+  {
+    std::cerr << "Usage: " << qPrintable(testName)
+              << " <path-to-dicom-file>" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  QString dicomFilePath(arguments.at(0));
+
+  QTemporaryDir tempDirectory;
+  CHECK_BOOL(tempDirectory.isValid(), true);
 
   ctkDICOMDatabase database;
-  QDir databaseDirectory = QDir::temp();
+  QDir databaseDirectory(tempDirectory.path());
   databaseDirectory.remove("ctkDICOMDatabase.sql");
   databaseDirectory.remove("ctkDICOMTagCache.sql");
 
@@ -54,10 +65,10 @@ int ctkDICOMDatabaseTest6( int argc, char * argv [] )
   bool res = database.initializeDatabase();
 
   if (!res)
-    {
+  {
     std::cerr << "ctkDICOMDatabase::initializeDatabase() failed." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   //
   // Basic test:
@@ -73,13 +84,13 @@ int ctkDICOMDatabaseTest6( int argc, char * argv [] )
 
   QString preInsertDescription = database.descriptionForSeries(instanceUID);
   if (!preInsertDescription.isEmpty())
-    {
+  {
       std::cerr
         << "ctkDICOMDatabase: db should return empty string for unknown "
         << " instance series description, instead got: "
         << preInsertDescription.toStdString() << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   database.insert(dicomFilePath, false, false);
 
@@ -103,7 +114,7 @@ int ctkDICOMDatabaseTest6( int argc, char * argv [] )
   QString seriesDescription = database.descriptionForSeries(seriesUID);
 
   if (seriesDescription != knownSeriesDescription)
-    {
+  {
     std::cerr << "ctkDICOMDatabase: database should return series description of '"
               << knownSeriesDescription.toStdString()
               << "', instead returned '" << seriesDescription.toStdString()
@@ -113,7 +124,7 @@ int ctkDICOMDatabaseTest6( int argc, char * argv [] )
               << seriesUID.toStdString()
               << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // get the study and patient uids
   QString patientUID, studyUID;
@@ -124,20 +135,20 @@ int ctkDICOMDatabaseTest6( int argc, char * argv [] )
   QString studyDescription = database.descriptionForStudy(studyUID);
 
   if (!studyDescription.isEmpty())
-    {
+  {
     std::cerr << "ctkDICOMDatabase: database should return empty study"
               << " description for studyUID of "
               << studyUID.toStdString() << ", instead returned '"
               << studyDescription.toStdString() << "'"
               << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // check for known patient name
   QString knownPatientName("Facial Expression");
   QString patientName = database.nameForPatient(patientUID);
   if (patientName != knownPatientName)
-    {
+  {
     std::cerr << "ctkDICOMDatabase: database should return known patient name '"
               << knownPatientName.toStdString()
               << "' for patient UID of "
@@ -145,7 +156,35 @@ int ctkDICOMDatabaseTest6( int argc, char * argv [] )
               << patientName.toStdString() << "'"
               << std::endl;
     return EXIT_FAILURE;
-    }
+  }
+
+  {
+    QSignalSpy spySeries(&database, SIGNAL(seriesRemoved(QString)));
+    database.removeSeries(seriesUID);
+    CHECK_INT(spySeries.count(), 1);
+    CHECK_QSTRING(spySeries.at(0).value(0).toString(), seriesUID);
+
+    QStringList seriesUIDs = database.seriesForStudy(studyUID);
+    CHECK_INT(seriesUIDs.count(), 0);
+  }
+  {
+    QSignalSpy spyStudy(&database, SIGNAL(studyRemoved(QString)));
+    database.removeStudy(studyUID);
+    CHECK_INT(spyStudy.count(), 1);
+    CHECK_QSTRING(spyStudy.at(0).value(0).toString(), studyUID);
+
+    QStringList studyUIDs = database.studiesForPatient(patientUID);
+    CHECK_INT(studyUIDs.count(), 0);
+  }
+  {
+    QSignalSpy spyPatient(&database, SIGNAL(patientRemoved(QString)));
+    database.removePatient(patientUID);
+    CHECK_INT(spyPatient.count(), 1);
+    CHECK_QSTRING(spyPatient.at(0).value(0).toString(), patientUID);
+
+    QStringList patientIDs = database.patients();
+    CHECK_INT(patientIDs.count(), 0);
+  }
 
   database.closeDatabase();
 

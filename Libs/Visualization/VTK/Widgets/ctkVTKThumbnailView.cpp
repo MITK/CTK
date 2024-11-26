@@ -55,7 +55,7 @@ protected:
 public:
   ctkVTKThumbnailViewPrivate(ctkVTKThumbnailView& object);
   ~ctkVTKThumbnailViewPrivate();
-  
+
   void init();
   void initCamera();
   void updateBounds();
@@ -64,7 +64,7 @@ public:
 
   vtkRenderer*                       Renderer;
   vtkWeakPointer<vtkRenderWindowInteractor> Interactor;
-  
+
   vtkOutlineSource*                  FOVBox;
   vtkPolyDataMapper*                 FOVBoxMapper;
   vtkFollower*                       FOVBoxActor;
@@ -104,7 +104,7 @@ void ctkVTKThumbnailViewPrivate::init()
   this->FOVBoxActor = vtkFollower::New();
 
   this->FOVBoxMapper->Update();
-   
+
   this->FOVBoxActor->SetMapper( this->FOVBoxMapper );
   this->FOVBoxActor->SetPickable(0);
   this->FOVBoxActor->SetDragable(0);
@@ -114,7 +114,7 @@ void ctkVTKThumbnailViewPrivate::init()
   this->FOVBoxActor->GetProperty()->SetLineWidth (2.0);
 
   q->renderWindow()->GetInteractor()->SetInteractorStyle(0);
-  
+
   // not sure what's for...
   q->qvtkConnect(q->renderWindow(), vtkCommand::AbortCheckEvent,
                  q, SLOT(checkAbort()));
@@ -126,19 +126,19 @@ void ctkVTKThumbnailViewPrivate::initCamera()
   Q_Q(ctkVTKThumbnailView);
   vtkRenderer* ren = this->Renderer;
   if (!ren)
-    {
+  {
     return;
-    }
+  }
   vtkCamera *cam = ren->IsActiveCameraCreated() ? ren->GetActiveCamera() : NULL;
   if (!cam)
-    {
+  {
     return;
-    }
+  }
   vtkCamera *navcam = q->activeCamera();
   if (!navcam)
-    {
+  {
     return;
-    }
+  }
   navcam->SetPosition ( cam->GetPosition() );
   navcam->SetFocalPoint ( cam->GetFocalPoint() );
   navcam->ComputeViewPlaneNormal();
@@ -152,7 +152,7 @@ void ctkVTKThumbnailViewPrivate::updateBounds()
 {
   Q_Q(ctkVTKThumbnailView);
   vtkRenderer* ren = this->Renderer;
-  
+
   vtkActorCollection *mainActors;
   vtkActor *mainActor;
   vtkActor *newActor;
@@ -161,23 +161,23 @@ void ctkVTKThumbnailViewPrivate::updateBounds()
   // iterate thru the actor collection,
   // remove item, delete actor, delete mapper.
   vtkActorCollection *navActors = q->renderer()->GetActors();
-    
+
   if (!navActors)
-    {
+  {
     q->renderer()->RemoveAllViewProps();
     navActors->RemoveAllItems();
-    }
+  }
   if (!ren)
-    {
+  {
     return;
-    }
+  }
 
   double bounds[6];
   double dimension;
   double x,y,z;
   double cutoff = 0.1;
   double cutoffDimension;
-  
+
   ren->ComputeVisiblePropBounds( bounds );
   x = bounds[1] - bounds[0];
   y = bounds[3] - bounds[2];
@@ -188,15 +188,15 @@ void ctkVTKThumbnailViewPrivate::updateBounds()
   // Get actor collection from the main viewer's renderer
   mainActors = ren->GetActors();
   if (!mainActors)
-    {
+  {
     return;
-    }
+  }
 
   // add the little FOV box to NavigationWidget's actors
   q->renderer()->AddViewProp(this->FOVBoxActor);
 
   for(mainActors->InitTraversal(); (mainActor = mainActors->GetNextActor()); )
-    {
+  {
     // get the bbox of this actor
     int vis = mainActor->GetVisibility();
     //if (vis)
@@ -212,7 +212,7 @@ void ctkVTKThumbnailViewPrivate::updateBounds()
     // only if it's big enough to count (don't bother with tiny
     // and don't bother with invisible stuff)
     if ( dimension > cutoffDimension && vis )
-      {
+    {
       // ---new: create new actor, mapper, deep copy, add it.
       newMapper = vtkPolyDataMapper::New();
       newMapper->ShallowCopy (mainActor->GetMapper() );
@@ -222,11 +222,11 @@ void ctkVTKThumbnailViewPrivate::updateBounds()
       newActor->ShallowCopy (mainActor );
       newActor->SetMapper ( newMapper );
       newMapper->Delete();
-      
+
       q->renderer()->AddActor( newActor );
       newActor->Delete();
-      }
     }
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -238,10 +238,10 @@ void ctkVTKThumbnailViewPrivate::updateCamera()
   vtkRenderer *ren = this->Renderer;
   vtkCamera *cam = ren ? (ren->IsActiveCameraCreated() ? ren->GetActiveCamera() : NULL) : NULL;
   if (!cam)
-    {
+  {
     return;
-    }
-  
+  }
+
   // 3DViewer's camera configuration
   double *focalPoint = cam->GetFocalPoint ( );
   double *camPos= cam->GetPosition ( );
@@ -257,28 +257,28 @@ void ctkVTKThumbnailViewPrivate::updateCamera()
   vtkCamera *navcam = q->activeCamera();
 
   if ( navcam == 0 )
-    {
+  {
     return;
-    }
+  }
   // give navcam the same parameters as MainViewer's ActiveCamera
   navcam->SetPosition ( camPos );
   navcam->SetFocalPoint ( focalPoint );
   navcam->SetViewUp( cam->GetViewUp() );
   navcam->ComputeViewPlaneNormal ( );
 
-  // compute FOVBox height & width to correspond 
+  // compute FOVBox height & width to correspond
   // to the main viewer's size and aspect ratio, in world-coordinates,
   // positioned just behind the near clipping plane, to make sure
   // nothing in the scene occludes it.
   double boxHalfHit;
   if ( cam->GetParallelProjection() )
-    {
+  {
     boxHalfHit = cam->GetParallelScale();
-    }
+  }
   else
-    {
+  {
     boxHalfHit = (camDist) * tan ( thetaV * DEGREES2RADIANS);
-    }
+  }
 
   // 3D MainViewer height and width for computing aspect
   int mainViewerWid = ren->GetRenderWindow()->GetSize()[0];
@@ -334,24 +334,24 @@ void ctkVTKThumbnailViewPrivate::updateCamera()
 void ctkVTKThumbnailViewPrivate::resetCamera()
 {
   Q_Q(ctkVTKThumbnailView);
-  
+
   vtkRenderer *ren = q->renderer();
   vtkCamera *cam = q->activeCamera();
-  
+
   if (!ren || !cam)
-    {
+  {
     logger.error("Trying to reset non-existent camera");
     return;
-    }
-  
+  }
+
   double bounds[6];
   ren->ComputeVisiblePropBounds( bounds );
-  
+
   if (!vtkMath::AreBoundsInitialized(bounds))
-    {
+  {
     logger.error("Cannot reset camera!");
     return;
-    }
+  }
   ren->InvokeEvent(vtkCommand::ResetCameraEvent, ren);
 
   double vn[3];
@@ -394,10 +394,10 @@ void ctkVTKThumbnailViewPrivate::resetCamera()
   // check view-up vector against view plane normal
   double* vup = cam->GetViewUp();
   if ( fabs(vtkMath::Dot(vup,vn)) > 0.999 )
-    {
+  {
     logger.warn("Resetting view-up since view plane normal is parallel");
     cam->SetViewUp(-vup[2], vup[0], vup[1]);
-    }
+  }
 
   // update the camera
   cam->SetFocalPoint(center[0],center[1],center[2]);
@@ -449,9 +449,9 @@ void ctkVTKThumbnailView::setRendererToListen(vtkRenderer* newRenderer)
 void ctkVTKThumbnailView::checkAbort()
 {
   if (this->renderWindow()->GetEventPending())
-    {
+  {
     this->renderWindow()->SetAbortRender(1);
-    }
+  }
 }
 
 //---------------------------------------------------------------------------

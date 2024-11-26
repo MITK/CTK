@@ -40,11 +40,11 @@ namespace
 {
 //-----------------------------------------------------------------------------
 void checkFinalWidgetState(void* data)
-  {
+{
   ctkAddRemoveComboBox* widget = reinterpret_cast<ctkAddRemoveComboBox*>(data);
 
   CTKCOMPARE(widget->currentIndex(), 1);
-  }
+}
 }
 
 //-----------------------------------------------------------------------------
@@ -71,12 +71,11 @@ int ctkAddRemoveComboBoxEventTranslatorPlayerTest1(int argc, char * argv [] )
 
   // ------------------------
   if (argc < 2 || QString(argv[1]) != "-I")
-    {
+  {
     QTimer::singleShot(0, &etpWidget, SLOT(play()));
-    }
+  }
 
   etpWidget.show();
   return app.exec();
 
 }
-

@@ -21,31 +21,48 @@
 // Qt includes
 #include <QCoreApplication>
 #include <QProcess>
+#include <QStringList>
 
 // STD includes
 #include <cstdlib>
 #include <iostream>
 
+//-----------------------------------------------------------------------------
 int ctkDICOMHostTest1(int argc, char * argv [])
 {
   QCoreApplication app(argc, argv);
-  QString command = QString("ctkDICOMHost");
+
+  QStringList arguments = app.arguments();
+  QString testName = arguments.takeFirst();
+
+  if (arguments.count() != 1)
+  {
+    std::cerr << "Usage: " << qPrintable(testName)
+              << " <path-to-ctkDICOMHost-executable>" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  QString command = arguments.at(0);
+
+  std::cout << "Testing:\n"
+            << qPrintable(command) << std::endl;
+
   QProcess process;
   process.start(command, /* arguments= */ QStringList());
   bool res = process.waitForStarted();
   if (!res)
-    {
+  {
     std::cerr << '\"' << qPrintable(command) << '\"'
               << " didn't start correctly" << std::endl;
     return res ? EXIT_SUCCESS : EXIT_FAILURE;
-    }
+  }
   process.kill();
   res = process.waitForFinished();
   if (!res)
-    {
+  {
     std::cerr << '\"' << qPrintable(command) << '\"'
               << " failed to terminate" << std::endl;
     return res ? EXIT_SUCCESS : EXIT_FAILURE;
-    }
+  }
   return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }

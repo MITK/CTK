@@ -45,10 +45,10 @@ int ctkVTKThumbnailViewTest1(int argc, char * argv [] )
   ctk::vtkSetSurfaceDefaultFormat();
 
   QApplication app(argc, argv);
-  
+
   ctkVTKThumbnailView thumbnailView;
   thumbnailView.setWindowTitle("Thumbnail view");
-  
+
   ctkVTKRenderView renderView;
   renderView.setWindowTitle("Render view");
 
@@ -69,9 +69,9 @@ int ctkVTKThumbnailViewTest1(int argc, char * argv [] )
   renderView.show();
 
   if (argc < 2 || QString(argv[1]) != "-I" )
-    {
+  {
     QTimer::singleShot(200, &app, SLOT(quit()));
-    }
+  }
 
   return app.exec();
 }

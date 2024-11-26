@@ -48,7 +48,7 @@ void (*ctkCallback::callback()const)(void*)
 {
   return this->Callback;
 }
-  
+
 // --------------------------------------------------------------------------
 void ctkCallback::setCallback(void (*newCallback)(void * data))
 {
@@ -71,10 +71,8 @@ void ctkCallback::setCallbackData(void * data)
 void ctkCallback::invoke()
 {
   if (!this->Callback)
-    {
+  {
     return;
-    }
+  }
   (*this->Callback)(this->CallbackData);
 }
-
-

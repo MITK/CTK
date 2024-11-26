@@ -104,7 +104,7 @@ public:
   /// layout (e.g. boxlayout).
   /// Returns previously registered or cached views if any, otherwise create
   /// new views using createViewsFromXML().
-  /// \sa viewFromXML(), registeredViews(), 
+  /// \sa viewFromXML(), registeredViews(),
   virtual QList<QWidget*> viewsFromXML(QDomElement layoutElement);
 
   /// Return all the widgets that have been registered.
@@ -182,7 +182,7 @@ public:
   virtual QWidget* createViewFromXML(QDomElement layoutElement){
     Q_UNUSED(layoutElement);
     return new T;
-    }
+  }
 };
 
 #endif

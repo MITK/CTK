@@ -21,6 +21,10 @@
 // Qt includes
 #include <QCoreApplication>
 #include <QDir>
+#include <QTemporaryDir>
+
+// ctkCore includes
+#include <ctkCoreTestingMacros.h>
 
 // ctkDICOMCore includes
 #include "ctkDICOMDatabase.h"
@@ -34,17 +38,23 @@ int ctkDICOMDatabaseTest4( int argc, char * argv [] )
 {
   QCoreApplication app(argc, argv);
 
-  if (argc < 2)
-    {
-    std::cerr << "ctkDICOMDatabaseTest2: missing dicom filePath argument";
-    std::cerr << std::endl;
-    return EXIT_FAILURE;
-    }
+  QStringList arguments = app.arguments();
+  QString testName = arguments.takeFirst();
 
-  QString dicomFilePath(argv[1]);
+  if (arguments.count() != 1)
+  {
+    std::cerr << "Usage: " << qPrintable(testName)
+              << " <path-to-dicom-file>" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  QString dicomFilePath(arguments.at(0));
+
+  QTemporaryDir tempDirectory;
+  CHECK_BOOL(tempDirectory.isValid(), true);
 
   ctkDICOMDatabase database;
-  QDir databaseDirectory = QDir::temp();
+  QDir databaseDirectory(tempDirectory.path());
   databaseDirectory.remove("ctkDICOMDatabase.sql");
   databaseDirectory.remove("ctkDICOMTagCache.sql");
 
@@ -54,10 +64,10 @@ int ctkDICOMDatabaseTest4( int argc, char * argv [] )
   bool res = database.initializeDatabase();
 
   if (!res)
-    {
+  {
     std::cerr << "ctkDICOMDatabase::initializeDatabase() failed." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   //
   // Basic test:
@@ -73,26 +83,26 @@ int ctkDICOMDatabaseTest4( int argc, char * argv [] )
   //
 
   if (database.cachedTag(instanceUID, tag) != QString(""))
-    {
+  {
     std::cerr << "ctkDICOMDatabase: tag cache should return empty string for unknown instance tag" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   if (database.cachedTag(instanceUID, badTag) != QString(""))
-    {
+  {
     std::cerr << "ctkDICOMDatabase: bad tag cache should return empty string for unknown instance tag" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   QStringList tagsToPrecache;
   tagsToPrecache << tag;
   database.setTagsToPrecache(tagsToPrecache);
 
   if (database.tagsToPrecache() != tagsToPrecache)
-    {
+  {
     std::cerr << "ctkDICOMDatabase: tags to precache not correct" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // check the insert timestamp
   QDateTime beforeInsert = QDateTime::currentDateTime();
@@ -108,10 +118,10 @@ int ctkDICOMDatabaseTest4( int argc, char * argv [] )
 
   int elapsed = beforeInsert.secsTo(insertTimeStamp);
   if (elapsed > 1)
-    {
+  {
     std::cerr << "ctkDICOMDatabase: Took more than a second to insert the file." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // check for series description in tag cache
   QString knownSeriesDescription("3D Cor T1 FAST IR-prepped GRE");
@@ -119,28 +129,28 @@ int ctkDICOMDatabaseTest4( int argc, char * argv [] )
   QString cachedTag = database.cachedTag(instanceUID, tag);
 
   if (cachedTag != knownSeriesDescription)
-    {
+  {
     std::cerr << "ctkDICOMDatabase: tag cache should return known value for instance" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   if (database.instanceValue(instanceUID, tag) != knownSeriesDescription)
-    {
+  {
     std::cerr << "ctkDICOMDatabase: database should return known value for instance" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   if (database.instanceValue(instanceUID, badTag) != QString(""))
-    {
+  {
     std::cerr << "ctkDICOMDatabase: bad tag should have empty value" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   if (database.cachedTag(instanceUID, badTag) != QString("__TAG_NOT_IN_INSTANCE__"))
-    {
+  {
     std::cerr << "ctkDICOMDatabase: bad tag should have sentinel value in cache" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   database.closeDatabase();
 

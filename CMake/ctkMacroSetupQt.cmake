@@ -21,7 +21,7 @@
 #! \ingroup CMakeUtilities
 macro(ctkMacroSetupQt)
 
-    cmake_minimum_required(VERSION 3.16)
+    cmake_minimum_required(VERSION 3.16.3)
     find_package(Qt${CTK_QT_VERSION} COMPONENTS Core)
 
     set(CTK_QT_COMPONENTS Core)
@@ -31,6 +31,12 @@ macro(ctkMacroSetupQt)
     endif()
 
     # See https://github.com/commontk/CTK/wiki/Maintenance#updates-of-required-qt-components
+
+    if(CTK_LIB_Widgets
+      OR CTK_LIB_DICOM/Widgets
+      )
+      list(APPEND CTK_QT5_COMPONENTS Svg)
+    endif()
 
     if(CTK_LIB_Widgets
       OR CTK_LIB_Scripting/Python/Core_PYTHONQT_WRAP_QTXML
@@ -58,7 +64,7 @@ macro(ctkMacroSetupQt)
       OR CTK_LIB_DICOM/Widgets
       OR CTK_LIB_PluginFramework
       )
-      list(APPEND CTK_QT_COMPONENTS Sql)
+      list(APPEND CTK_QT_COMPONENTS Sql Svg)
 
       if(CTK_QT_VERSION VERSION_GREATER "5")
         list(APPEND CTK_QT_COMPONENTS Core5Compat)

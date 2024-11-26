@@ -92,7 +92,7 @@ void ctkDICOMItem::InitializeFromItem(DcmItem *dataset, bool takeOwnership)
       {
         d->m_SpecificCharacterSet = encoding.c_str();
       }
-      }
+    }
       if (d->m_SpecificCharacterSet.isEmpty())
       {
         ///
@@ -105,8 +105,8 @@ void ctkDICOMItem::InitializeFromItem(DcmItem *dataset, bool takeOwnership)
         ///
         SetElementAsString( DCM_SpecificCharacterSet, "ISO_IR 100" );
       }
-    }
   }
+}
 
 
 void ctkDICOMItem::InitializeFromFile(const QString& filename,
@@ -129,6 +129,18 @@ void ctkDICOMItem::InitializeFromFile(const QString& filename,
   }
 
   InitializeFromItem(dataset, true);
+}
+
+ctkDICOMItem* ctkDICOMItem::Clone()
+{
+  Q_D(ctkDICOMItem);
+  ctkDICOMItem* newItem = new ctkDICOMItem;
+  // Given that we exclusively handle `DcmItem` and `DcmDataset` (where `DcmDataset`
+  // inherits from `DcmItem`), we safely assume that casting from `DcmObject` to
+  // `DcmItem` is always valid.
+  DcmItem* dcmItem = dynamic_cast<DcmItem*>(d->m_DcmItem->clone());
+  newItem->InitializeFromItem(dcmItem, true);
+  return newItem;
 }
 
 void ctkDICOMItem::Serialize()
@@ -249,6 +261,12 @@ DcmItem& ctkDICOMItem::GetDcmItem() const
   return *d->m_DcmItem;
 }
 
+DcmItem* ctkDICOMItem::GetDcmItemPointer() const
+{
+  const Q_D(ctkDICOMItem);
+  return d->m_DcmItem;
+}
+
 OFCondition ctkDICOMItem::findAndGetElement(const DcmTag& tag, DcmElement*& element, const OFBool searchIntoSub) const
 {
   EnsureDcmDataSetIsInitialized();
@@ -304,7 +322,7 @@ bool ctkDICOMItem::CopyElement( DcmDataset* dataset, const DcmTagKey& tag, int t
   if (!dataset) return false;
   if (dataset == d->m_DcmItem)
   {
-    throw std::logic_error("Trying to copy tag to yourself. Please check application logic!"); 
+    throw std::logic_error("Trying to copy tag to yourself. Please check application logic!");
   }
 
   // type 1 or 1C must exist AND have a value
@@ -960,12 +978,14 @@ QString ctkDICOMItem::TranslateDefinedTermModality( const QString& dt )
 
 QString ctkDICOMItem::TagKey( const DcmTag& tag )
 {
-  return QString("(%1,%2)").arg( tag.getGroup(), 4, 16, QLatin1Char('0')).arg( tag.getElement(), 4, 16, QLatin1Char('0') );
+  QString groupElement = QString("(%1,%2)").arg( tag.getGroup(), 4, 16, QLatin1Char('0')).arg( tag.getElement(), 4, 16, QLatin1Char('0') );
+  return groupElement.toUpper();
 }
 
 QString ctkDICOMItem::TagKeyStripped( const DcmTag& tag )
 {
-  return QString("%1,%2").arg( tag.getGroup(), 4, 16, QLatin1Char('0')).arg( tag.getElement(), 4, 16, QLatin1Char('0') );
+  QString groupElement = QString("%1,%2").arg( tag.getGroup(), 4, 16, QLatin1Char('0')).arg( tag.getElement(), 4, 16, QLatin1Char('0') );
+  return groupElement.toUpper();
 }
 
 QString ctkDICOMItem::TagDescription( const DcmTag& tag )
@@ -1036,4 +1056,3 @@ bool ctkDICOMItem::SaveToFile(const QString& filePath) const
   delete fileformat;
   return status.good();
 }
-

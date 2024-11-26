@@ -13,9 +13,9 @@
 #include "ctkExampleDicomHost.h"
 #include "ctkDicomAvailableDataHelper.h"
 
-ctkExampleHostLogic::ctkExampleHostLogic(ctkHostedAppPlaceholderWidget* placeHolder, 
-                                             QWidget* placeHolderForControls, int hostPort, int appPort) : 
-  QObject(placeHolder), 
+ctkExampleHostLogic::ctkExampleHostLogic(ctkHostedAppPlaceholderWidget* placeHolder,
+                                             QWidget* placeHolderForControls, int hostPort, int appPort) :
+  QObject(placeHolder),
   PlaceHolderForHostedApp(placeHolder),
   PlaceHolderForControls(placeHolderForControls),
 //  ValidSelection(false),
@@ -59,10 +59,10 @@ void ctkExampleHostLogic::configureHostedApp()
 void ctkExampleHostLogic::sendData(ctkDicomAppHosting::AvailableData& data, bool lastData)
 {
  if ((this->Host) && (this->HostControls->validAppFileName()) /*&& (ValidSelection)*/)
-  {
+ {
     *Data = data;
     LastData = lastData;
- 
+
     SendData = true;
     if(this->Host->getApplicationState() == ctkDicomAppHosting::EXIT)
     {
@@ -77,7 +77,7 @@ void ctkExampleHostLogic::sendData(ctkDicomAppHosting::AvailableData& data, bool
     {
       publishSelectedData();
     }
-  }
+ }
 }
 
 void ctkExampleHostLogic::onAppReady()

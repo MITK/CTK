@@ -69,7 +69,7 @@ public:
   void setDefaultIcon(const QIcon&);
   QIcon defaultIcon()const;
 
-  /// Force the display of the text/icon at all time (not only when the 
+  /// Force the display of the text/icon at all time (not only when the
   /// current index is invalid). False by default.
   void forceDefault(bool forceDefault);
   bool isDefaultForced()const;
@@ -117,6 +117,10 @@ protected:
   virtual void paintEvent(QPaintEvent* event);
   virtual void changeEvent(QEvent* event);
   virtual void wheelEvent(QWheelEvent* event);
+  virtual void keyReleaseEvent(QKeyEvent* event);
+
+Q_SIGNALS:
+  void returnRelease();
 
 protected:
   QScopedPointer<ctkComboBoxPrivate> d_ptr;

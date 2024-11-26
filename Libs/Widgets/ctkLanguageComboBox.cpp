@@ -71,9 +71,9 @@ void ctkLanguageComboBoxPrivate::updateLanguageItems()
   Q_Q(ctkLanguageComboBox);
 
   if (this->UpdatingLanguageItems)
-    {
+  {
     return;
-    }
+  }
   this->UpdatingLanguageItems = true;
   QString languageBeforeUpdate = q->currentLanguage();
 
@@ -172,12 +172,12 @@ bool ctkLanguageComboBoxPrivate::languageItem(const QString& localeCode,
   QLocale locale(localeCode);
   if (localeCode.isEmpty() ||
       locale.name() == "C")
-    {
+  {
     icon = QIcon();
     text = QString();
     data = QVariant();
     return false;
-    }
+  }
 
   if (this->CountryFlagsVisible)
   {
@@ -207,7 +207,7 @@ bool ctkLanguageComboBoxPrivate::languageItem(const QString& localeCode,
       // (e.g., instead of "Hungarian (Hungary)" just show "Hungarian").
       text = QLocale::languageToString(locale.language());
     }
-    
+
   }
   data = locale.name();
 
@@ -314,10 +314,10 @@ void ctkLanguageComboBox::onLanguageChanged(int index)
   Q_UNUSED(index);
   Q_D(ctkLanguageComboBox);
   if (d->UpdatingLanguageItems)
-    {
+  {
     // do not emit event during transient changes in UpdateLanguageItems()
     return;
-    }
+  }
   QString currentLanguage = this->currentLanguage();
   emit currentLanguageNameChanged(currentLanguage);
 }

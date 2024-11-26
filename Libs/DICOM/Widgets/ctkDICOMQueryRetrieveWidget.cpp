@@ -28,7 +28,7 @@
 #include <QTreeView>
 #include <QTabBar>
 
-/// CTK includes
+// ctkCore includes
 #include <ctkCheckableHeaderView.h>
 #include <ctkCheckableModelHelper.h>
 #include <ctkLogger.h>
@@ -41,7 +41,6 @@
 
 // ctkDICOMWidgets includes
 #include "ctkDICOMQueryRetrieveWidget.h"
-#include "ctkDICOMQueryResultsTabWidget.h"
 #include "ui_ctkDICOMQueryRetrieveWidget.h"
 
 static ctkLogger logger("org.commontk.DICOM.Widgets.ctkDICOMQueryRetrieveWidget");
@@ -53,7 +52,7 @@ class ctkDICOMQueryRetrieveWidgetPrivate: public Ui_ctkDICOMQueryRetrieveWidget
 
 protected:
   ctkDICOMQueryRetrieveWidget* const q_ptr;
-  
+
 public:
   ctkDICOMQueryRetrieveWidgetPrivate(ctkDICOMQueryRetrieveWidget& obj);
   ~ctkDICOMQueryRetrieveWidgetPrivate();
@@ -67,7 +66,7 @@ public:
   QSharedPointer<ctkDICOMDatabase>  RetrieveDatabase;
   ctkDICOMModel                     Model;
   ctkDICOMQuery                     *CurrentQuery;
-  
+
   QProgressDialog*                  ProgressDialog;
   QString                           CurrentServer;
     bool                              UseProgressDialog;
@@ -88,13 +87,13 @@ ctkDICOMQueryRetrieveWidgetPrivate::ctkDICOMQueryRetrieveWidgetPrivate(
 ctkDICOMQueryRetrieveWidgetPrivate::~ctkDICOMQueryRetrieveWidgetPrivate()
 {
   foreach(ctkDICOMQuery* query, this->QueriesByServer.values())
-    {
+  {
     delete query;
-    }
+  }
   foreach(ctkDICOMRetrieve* retrieval, this->RetrievalsByStudyUID.values())
-    {
+  {
     delete retrieval;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -116,7 +115,7 @@ void ctkDICOMQueryRetrieveWidgetPrivate::init()
 
 //----------------------------------------------------------------------------
 ctkDICOMQueryRetrieveWidget::ctkDICOMQueryRetrieveWidget(QWidget* parentWidget)
-  : Superclass(parentWidget) 
+  : Superclass(parentWidget)
   , d_ptr(new ctkDICOMQueryRetrieveWidgetPrivate(*this))
 {
   Q_D(ctkDICOMQueryRetrieveWidget);
@@ -154,9 +153,9 @@ void ctkDICOMQueryRetrieveWidget::onQuerySectionToggled(bool toggled)
 {
   Q_D(ctkDICOMQueryRetrieveWidget);
   if (toggled)
-    {
+  {
     d->RetrieveCollapsibleButton->setCollapsed(true);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -164,9 +163,9 @@ void ctkDICOMQueryRetrieveWidget::onRetrieveSectionToggled(bool toggled)
 {
   Q_D(ctkDICOMQueryRetrieveWidget);
   if (toggled)
-    {
+  {
     d->QueryCollapsibleButton->setCollapsed(true);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -215,11 +214,11 @@ void ctkDICOMQueryRetrieveWidget::query()
   progress.setValue(0);
   progress.show();
   foreach (d->CurrentServer, d->ServerNodeWidget->selectedServerNodes())
-    {
+  {
     if (progress.wasCanceled())
-      {
+    {
       break;
-      }
+    }
     QMap<QString, QVariant> parameters =
       d->ServerNodeWidget->serverNodeParameters(d->CurrentServer);
     // if we are here it's because the server node was checked
@@ -227,17 +226,17 @@ void ctkDICOMQueryRetrieveWidget::query()
     // create a query for the current server
     ctkDICOMQuery* query = new ctkDICOMQuery;
     d->CurrentQuery = query;
+    query->setConnectionName(parameters["Name"].toString());
     query->setCallingAETitle(d->ServerNodeWidget->callingAETitle());
     query->setCalledAETitle(parameters["AETitle"].toString());
     query->setHost(parameters["Address"].toString());
     query->setPort(parameters["Port"].toInt());
-    query->setPreferCGET(parameters["CGET"].toBool());
 
     // populate the query with the current search options
     query->setFilters( d->QueryWidget->parameters() );
 
     try
-      {
+    {
       connect(&progress, SIGNAL(canceled()), query, SLOT(cancel()));
       connect(query, SIGNAL(progress(QString)),
               progressLabel, SLOT(setText(QString)));
@@ -254,30 +253,30 @@ void ctkDICOMQueryRetrieveWidget::query()
       disconnect(query, SIGNAL(progress(int)),
                  this, SLOT(onQueryProgressChanged(int)));
       disconnect(&progress, SIGNAL(canceled()), query, SLOT(cancel()));
-      }
+    }
     catch (const std::exception& e)
-      {
+    {
       Q_UNUSED(e);
       logger.error ( "Query error: " + parameters["Name"].toString() );
       progress.setLabelText("Query error: " + parameters["Name"].toString());
       delete query;
-      }
+    }
 
     d->QueriesByServer[d->CurrentServer] = query;
 
     for (const auto & StudyAndSeriesInstanceUIDPair : query->studyAndSeriesInstanceUIDQueried() )
-      {
+    {
       d->QueriesByStudyUID[StudyAndSeriesInstanceUIDPair.first] = query;
       d->StudyAndSeriesInstanceUIDPairList.push_back(qMakePair( StudyAndSeriesInstanceUIDPair.first, StudyAndSeriesInstanceUIDPair.second ));
-      }
     }
-  
+  }
+
   if (!progress.wasCanceled())
-    {
+  {
     d->Model.setDatabase(d->QueryResultDatabase.database());
-    
+
     d->dicomTableManager->setDICOMDatabase(&(d->QueryResultDatabase));
-    }
+  }
   d->RetrieveButton->setEnabled(d->QueriesByStudyUID.keys().size() != 0);
 
   // We would need to call database.updateDisplayedFields() now, but currently
@@ -297,9 +296,9 @@ void ctkDICOMQueryRetrieveWidget::retrieve()
   Q_D(ctkDICOMQueryRetrieveWidget);
 
   if (!d->RetrieveButton->isEnabledTo(this))
-    {
+  {
     return;
-    }
+  }
 
   QProgressDialog progress(tr("Retrieve from DICOM servers"), tr("Cancel"), 0, 0, this,
                            Qt::WindowTitleHint | Qt::WindowSystemMenuHint);
@@ -309,7 +308,7 @@ void ctkDICOMQueryRetrieveWidget::retrieve()
 
   // for each of the selected server nodes, send the query
   if(d->UseProgressDialog)
-    {
+  {
     progress.setLabel(progressLabel);
     d->ProgressDialog = &progress;
     progress.setWindowModality(Qt::ApplicationModal);
@@ -318,7 +317,7 @@ void ctkDICOMQueryRetrieveWidget::retrieve()
     progress.setMaximum(0);
     progress.setAutoClose(false);
     progress.show();
-    }
+  }
 
   QMap<QString,QVariant> serverParameters = d->ServerNodeWidget->parameters();
   ctkDICOMRetrieve *retrieve = new ctkDICOMRetrieve;
@@ -332,16 +331,16 @@ void ctkDICOMQueryRetrieveWidget::retrieve()
   QStringList selectedSeriesUIDs = d->dicomTableManager->currentSeriesSelection();
 
   foreach( QString seriesUID, selectedSeriesUIDs )
-    {
+  {
     if(d->UseProgressDialog)
-      {
+    {
       if (progress.wasCanceled())
-        {
+      {
         break;
-        }
+      }
       progressLabel->setText(QString(tr("Retrieving:\n%1")).arg(seriesUID));
       this->updateRetrieveProgress(0);
-      }
+    }
 
     // Get the study UID of the current series to be retrieved
     auto currentStudyAndSeriesUIDPair = std::find_if( d->StudyAndSeriesInstanceUIDPairList.begin(), d->StudyAndSeriesInstanceUIDPairList.end(),
@@ -350,87 +349,98 @@ void ctkDICOMQueryRetrieveWidget::retrieve()
 
     // Get information which server we want to get the study from and prepare request accordingly
     QMap<QString, ctkDICOMQuery*>::iterator queryIt = d->QueriesByStudyUID.find(studyUID);
-    ctkDICOMQuery* query = (queryIt == d->QueriesByStudyUID.end() ? nullptr : *queryIt);
-    if (!query)
-      {
+    ctkDICOMQuery* currentQuery = (queryIt == d->QueriesByStudyUID.end() ? nullptr : *queryIt);
+    if (!currentQuery)
+    {
       logger.warn("Retrieve of series " + seriesUID + " failed. No query found for study " + studyUID + ".");
       continue;
-      }
+    }
 
     retrieve->setDatabase( d->RetrieveDatabase );
-    retrieve->setCallingAETitle( query->callingAETitle() );
-    retrieve->setCalledAETitle( query->calledAETitle() );
-    retrieve->setPort( query->port() );
-    retrieve->setHost( query->host() );
+    retrieve->setCallingAETitle( currentQuery->callingAETitle() );
+    retrieve->setCalledAETitle( currentQuery->calledAETitle() );
+    retrieve->setPort( currentQuery->port() );
+    retrieve->setHost( currentQuery->host() );
     // TODO: check the model item to see if it is checked
     // for now, assume all studies queried and shown to the user will be retrieved
-    logger.debug("About to retrieve " + seriesUID + " from " + query->host());
+    logger.debug("About to retrieve " + seriesUID + " from " + currentQuery->host());
     logger.info ( "Starting to retrieve" );
 
     if(d->UseProgressDialog)
-      {
+    {
       connect(&progress, SIGNAL(canceled()), retrieve, SLOT(cancel()));
       connect(retrieve, SIGNAL(progress(QString)),
               progressLabel, SLOT(setText(QString)));
       connect(retrieve, SIGNAL(progress(int)),
               this, SLOT(updateRetrieveProgress(int)));
-      }
+    }
     try
-      {
+    {
       // perform the retrieve
-      if ( query->preferCGET() )
-        {
-        retrieve->getSeries ( studyUID, seriesUID );
-        }
-      else
-        {
-        retrieve->moveSeries ( studyUID, seriesUID );
-        }
-      }
-    catch (const std::exception& e)
+      QMap<QString, QVariant> parameters;
+      foreach(QString server, d->QueriesByServer.keys())
       {
-      Q_UNUSED(e);
-      logger.error ( "Retrieve failed" );
-      if(d->UseProgressDialog)
+        ctkDICOMQuery* query = d->QueriesByServer[server];
+        if (query == currentQuery)
         {
-        if ( QMessageBox::question ( this, 
-              tr("Query Retrieve"), tr("Retrieve failed.  Keep trying?"),
-              QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
-          {
-          continue;
-          }
-        else
-          {
+          parameters = d->ServerNodeWidget->serverNodeParameters(server);
           break;
-          }
         }
       }
 
-    if(d->UseProgressDialog)
+      if ( parameters["CGET"].toBool() )
       {
+        retrieve->getSeries ( studyUID, seriesUID );
+      }
+      else
+      {
+        retrieve->moveSeries ( studyUID, seriesUID );
+      }
+    }
+    catch (const std::exception& e)
+    {
+      Q_UNUSED(e);
+      logger.error ( "Retrieve failed" );
+      if(d->UseProgressDialog)
+      {
+        if ( QMessageBox::question ( this,
+              tr("Query Retrieve"), tr("Retrieve failed.  Keep trying?"),
+              QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+        {
+          continue;
+        }
+        else
+        {
+          break;
+        }
+      }
+    }
+
+    if(d->UseProgressDialog)
+    {
       disconnect(retrieve, SIGNAL(progress(QString)),
               progressLabel, SLOT(setText(QString)));
       disconnect(retrieve, SIGNAL(progress(int)),
               this, SLOT(updateRetrieveProgress(int)));
       disconnect(&progress, SIGNAL(canceled()), retrieve, SLOT(cancel()));
-      }
+    }
     logger.info ( "Retrieve success" );
-    }
+  }
 
-  if (retrieve->database())
-    {
-    retrieve->database()->updateDisplayedFields();
-    }
+  if (retrieve->dicomDatabase())
+  {
+    retrieve->dicomDatabase()->updateDisplayedFields();
+  }
 
   if(d->UseProgressDialog)
-    {
+  {
     QString message(tr("Retrieve Process Finished"));
     if (retrieve->wasCanceled())
-      {
+    {
       message = tr("Retrieve Process Canceled");
-      }
-    QMessageBox::information ( this, tr("Query Retrieve"), message );
     }
+    QMessageBox::information ( this, tr("Query Retrieve"), message );
+  }
   emit studiesRetrieved(d->RetrievalsByStudyUID.keys());
 
   delete retrieve;
@@ -449,27 +459,27 @@ void ctkDICOMQueryRetrieveWidget::onQueryProgressChanged(int value)
 {
   Q_D(ctkDICOMQueryRetrieveWidget);
   if (d->ProgressDialog == 0)
-    {
+  {
     return;
-    }
+  }
   if (d->CurrentQuery && d->ProgressDialog->wasCanceled())
-    {
+  {
     d->CurrentQuery->cancel();
-    }
+  }
   QStringList servers = d->ServerNodeWidget->selectedServerNodes();
   int serverIndex = servers.indexOf(d->CurrentServer);
   if (serverIndex < 0)
-    {
+  {
     return;
-    }
+  }
   if (d->ProgressDialog->width() != 500)
-    {
+  {
     QPoint pp = this->mapToGlobal(QPoint(0,0));
     pp = QPoint(pp.x() + (this->width() - d->ProgressDialog->width()) / 2,
                 pp.y() + (this->height() - d->ProgressDialog->height())/ 2);
     d->ProgressDialog->move(pp - QPoint((500 - d->ProgressDialog->width())/2, 0));
     d->ProgressDialog->resize(500, d->ProgressDialog->height());
-    }
+  }
   float serverProgress = 100. / servers.size();
   d->ProgressDialog->setValue( (serverIndex + (value / 101.)) * serverProgress);
   QApplication::processEvents();
@@ -480,18 +490,18 @@ void ctkDICOMQueryRetrieveWidget::updateRetrieveProgress(int value)
 {
   Q_D(ctkDICOMQueryRetrieveWidget);
   if (d->ProgressDialog == 0)
-    {
+  {
     return;
-    }
+  }
   static int targetWidth = 700;
   if (d->ProgressDialog->width() != targetWidth)
-    {
+  {
     QPoint pp = this->mapToGlobal(QPoint(0,0));
     pp = QPoint(pp.x() + (this->width() - d->ProgressDialog->width()) / 2,
                 pp.y() + (this->height() - d->ProgressDialog->height())/ 2);
     d->ProgressDialog->move(pp - QPoint((targetWidth - d->ProgressDialog->width())/2, 0));
     d->ProgressDialog->resize(targetWidth, d->ProgressDialog->height());
-    }
+  }
   d->ProgressDialog->setValue( value );
   logger.error(QString("setting value to %1").arg(value) );
   QApplication::processEvents();

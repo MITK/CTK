@@ -33,30 +33,30 @@ bool ctkAppSoapMessageProcessor::process(
   const QtSoapMessage& message, QtSoapMessage* reply ) const
 {
   // TODO check for NULL appInterface?
-  
+
   const QtSoapType& method = message.method();
   QString methodName = method.name().name();
 
   qDebug() << "AppMessageProcessor: Received soap method request: " << methodName;
 
   bool foundMethod = false;
-  
+
   if (methodName == "GetState")
-    {
+  {
     processGetState(message, reply);
     foundMethod = true;
-    }
+  }
   else if (methodName == "SetState")
-    {
+  {
     processSetState(message, reply);
     foundMethod = true;
-    }
+  }
   else if (methodName == "BringToFront")
-    {
+  {
     processBringToFront(message, reply);
     foundMethod = true;
-    }
-  
+  }
+
   return foundMethod;
 }
 

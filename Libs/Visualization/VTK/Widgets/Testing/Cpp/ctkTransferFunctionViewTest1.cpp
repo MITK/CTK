@@ -41,8 +41,8 @@
 int ctkTransferFunctionViewTest1(int argc, char * argv [] )
 {
   QApplication app(argc, argv);
-  
-  vtkSmartPointer<vtkColorTransferFunction> ctf = 
+
+  vtkSmartPointer<vtkColorTransferFunction> ctf =
     vtkSmartPointer<vtkColorTransferFunction>::New();
   //
   ctf->AddRGBPoint(0.2, 1.,0.,0., 0.5, 0.);
@@ -51,14 +51,14 @@ int ctkTransferFunctionViewTest1(int argc, char * argv [] )
   //ctf->AddHSVPoint(0., 0.,1.,1.);
   //ctf->AddHSVPoint(1., 0.66666,1.,1.);
 
-  QSharedPointer<ctkTransferFunction> transferFunction = 
+  QSharedPointer<ctkTransferFunction> transferFunction =
     QSharedPointer<ctkTransferFunction>(new ctkVTKColorTransferFunction(ctf));
   ctkTransferFunctionView transferFunctionView(0);
-  ctkTransferFunctionGradientItem* gradient = 
+  ctkTransferFunctionGradientItem* gradient =
     new ctkTransferFunctionGradientItem(transferFunction.data());
-  ctkTransferFunctionControlPointsItem* controlPoints = 
+  ctkTransferFunctionControlPointsItem* controlPoints =
     new ctkTransferFunctionControlPointsItem(transferFunction.data());
-  
+
   transferFunctionView.scene()->addItem(gradient);
   transferFunctionView.scene()->addItem(controlPoints);
   // the widget is not really shown here, only when app.exec() is called
@@ -68,9 +68,9 @@ int ctkTransferFunctionViewTest1(int argc, char * argv [] )
   //ctkTransferFunctionView* toto = new ctkTransferFunctionView();
   QTimer autoExit;
   if (argc < 2 || QString(argv[1]) != "-I")
-    {
+  {
     QObject::connect(&autoExit, SIGNAL(timeout()), &app, SLOT(quit()));
     autoExit.start(1000);
-    }
+  }
   return app.exec();
 }

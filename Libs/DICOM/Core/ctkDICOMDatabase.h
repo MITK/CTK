@@ -22,6 +22,7 @@
 #define __ctkDICOMDatabase_h
 
 // Qt includes
+#include <QColor>
 #include <QObject>
 #include <QStringList>
 #include <QSqlDatabase>
@@ -34,6 +35,7 @@ class ctkDICOMDatabasePrivate;
 class DcmDataset;
 class ctkDICOMAbstractThumbnailGenerator;
 class ctkDICOMDisplayedFieldGenerator;
+class ctkDICOMJobResponseSet;
 
 /// \ingroup DICOM_Core
 ///
@@ -52,8 +54,8 @@ class ctkDICOMDisplayedFieldGenerator;
 /// parallel to "dicom" directory called "thumbs".
 class CTK_DICOM_CORE_EXPORT ctkDICOMDatabase : public QObject
 {
-
   Q_OBJECT
+  Q_ENUMS(InsertResult)
   Q_PROPERTY(bool isOpen READ isOpen)
   Q_PROPERTY(bool isInMemory READ isInMemory)
   Q_PROPERTY(QString lastError READ lastError)
@@ -64,6 +66,8 @@ class CTK_DICOM_CORE_EXPORT ctkDICOMDatabase : public QObject
   Q_PROPERTY(QStringList patientFieldNames READ patientFieldNames)
   Q_PROPERTY(QStringList studyFieldNames READ studyFieldNames)
   Q_PROPERTY(QStringList seriesFieldNames READ seriesFieldNames)
+  Q_PROPERTY(QStringList loadedSeries READ loadedSeries WRITE setLoadedSeries)
+  Q_PROPERTY(QStringList visibleSeries READ visibleSeries WRITE setVisibleSeries)
   Q_PROPERTY(bool useShortStoragePath READ useShortStoragePath WRITE setUseShortStoragePath)
 
 public:
@@ -118,7 +122,7 @@ public:
   ///        must be avoided as it breaks previously created database object
   ///        that used the same connection name).
   /// @param update the schema if it is found to be out of date
-  Q_INVOKABLE virtual void openDatabase(const QString databaseFile,
+  Q_INVOKABLE virtual bool openDatabase(const QString& databaseFile,
                                         const QString& connectionName = "");
 
   /// Close the database. It must not be used afterwards.
@@ -175,24 +179,46 @@ public:
   /// This is useful for retrieving first file, for example for getting access to fields within that file
   /// using fileValue() method.
   Q_INVOKABLE QStringList filesForSeries(const QString seriesUID, int hits=-1);
+  Q_INVOKABLE QStringList urlsForSeries(const QString seriesUID, int hits=-1);
 
   Q_INVOKABLE QHash<QString,QString> descriptionsForFile(QString fileName);
   Q_INVOKABLE QString descriptionForSeries(const QString seriesUID);
   Q_INVOKABLE QString descriptionForStudy(const QString studyUID);
   Q_INVOKABLE QString nameForPatient(const QString patientUID);
   Q_INVOKABLE QString displayedNameForPatient(const QString patientUID);
+  Q_INVOKABLE QDateTime insertDateTimeForPatient(const QString patientUID);
+  Q_INVOKABLE QDateTime insertDateTimeForStudy(const QString studyInstanceUID);
+  Q_INVOKABLE QDateTime insertDateTimeForSeries(const QString seriesInstanceUID);
   Q_INVOKABLE QString fieldForPatient(const QString field, const QString patientUID);
   Q_INVOKABLE QString fieldForStudy(const QString field, const QString studyInstanceUID);
   Q_INVOKABLE QString fieldForSeries(const QString field, const QString seriesInstanceUID);
+
+  /// Provide lists of allow and deny servers associated with the patient.
+  Q_INVOKABLE QMap<QString, QStringList> connectionsInformationForPatient(const QString patientUID);
+  /// Set the allow and deny servers for the patient
+  Q_INVOKABLE bool updateConnectionsForPatient(const QString patientUID,
+                                               const QStringList allowList,
+                                               const QStringList denyList);
 
   QStringList patientFieldNames() const;
   QStringList studyFieldNames() const;
   QStringList seriesFieldNames() const;
 
   Q_INVOKABLE QString fileForInstance(const QString sopInstanceUID);
+  Q_INVOKABLE QString urlForInstance(const QString sopInstanceUID);
+  Q_INVOKABLE QString instanceForURL(const QString url);
   Q_INVOKABLE QString seriesForFile(QString fileName);
   Q_INVOKABLE QString instanceForFile(const QString fileName);
   Q_INVOKABLE QDateTime insertDateTimeForInstance(const QString fileName);
+  Q_INVOKABLE QString thumbnailPathForInstance(const QString& studyInstanceUID,
+                                               const QString& seriesInstanceUID,
+                                               const QString& sopInstanceUID);
+  Q_INVOKABLE bool storeThumbnailFile(const QString& originalFilePath,
+                                      const QString& studyInstanceUID,
+                                      const QString& seriesInstanceUID,
+                                      const QString& sopInstanceUID,
+                                      const QString& modality = "",
+                                      QColor backgroundColor = Qt::darkGray);
 
   Q_INVOKABLE int patientsCount();
   Q_INVOKABLE int studiesCount();
@@ -248,24 +274,27 @@ public:
   ///                  does only make sense if a full object is received.
   /// @param @generateThumbnail If true, a thumbnail is generated.
   ///
-  Q_INVOKABLE void insert( const ctkDICOMItem& ctkDataset,
-                              bool storeFile, bool generateThumbnail);
-  void insert ( DcmItem *item,
-                              bool storeFile = true, bool generateThumbnail = true);
-  Q_INVOKABLE void insert ( const QString& filePath,
-                            bool storeFile = true, bool generateThumbnail = true,
-                            bool createHierarchy = true,
-                            const QString& destinationDirectoryName = QString() );
-
-  Q_INVOKABLE void insert(const QString& filePath, const ctkDICOMItem& ctkDataset,
-    bool storeFile = true, bool generateThumbnail = true);
-
+  Q_INVOKABLE void insert(const ctkDICOMItem& ctkDataset,
+                          bool storeFile, bool generateThumbnail);
+  void insert (DcmItem *item, bool storeFile = true, bool generateThumbnail = true);
+  Q_INVOKABLE void insert (const QString& filePath,
+                           bool storeFile = true, bool generateThumbnail = true,
+                           bool createHierarchy = true,
+                           const QString& destinationDirectoryName = QString());
   Q_INVOKABLE void insert(const QList<ctkDICOMDatabase::IndexingResult>& indexingResults);
+  /// Insert operation
+  enum InsertResult
+  {
+    Failed = -1,
+    NotInserted,
+    Inserted
+  };
+  Q_INVOKABLE InsertResult insert(const QList<ctkDICOMJobResponseSet*>& jobResponseSets);
 
   /// When a DICOM file is stored in the database (insert is called with storeFile=true) then
   /// path is constructed from study, series, and SOP instance UID.
   /// If useShortStoragePath is false then the full UIDs are used as subfolder and file name.
-  /// If useShortStoragePath is true (this is the default) then the path is shortened 
+  /// If useShortStoragePath is true (this is the default) then the path is shortened
   /// to approximately 40 characters, by replacing UIDs with hashes generated from them.
   /// UIDs can be 40-60 characters long each, therefore the the total path (including database folder base path)
   /// can exceed maximum path length on some file systems. It is recommended to enable useShortStoragePath
@@ -306,9 +335,9 @@ public:
   /// if set to False the they are left in the database unchanged.
   /// By default clearCachedTags is disabled because it significantly increases deletion time
   /// on large databases.
-  Q_INVOKABLE bool removeSeries(const QString& seriesInstanceUID, bool clearCachedTags=false);
-  Q_INVOKABLE bool removeStudy(const QString& studyInstanceUID);
-  Q_INVOKABLE bool removePatient(const QString& patientID);
+  Q_INVOKABLE bool removeSeries(const QString& seriesInstanceUID, bool clearCachedTags=false, bool cleanup=true);
+  Q_INVOKABLE bool removeStudy(const QString& studyInstanceUID, bool cleanup=true);
+  Q_INVOKABLE bool removePatient(const QString& patientID, bool cleanup=true);
   /// Remove all patients, studies, series, which do not have associated images.
   /// If vacuum is set to true then the whole database content is attempted to
   /// cleaned from remnants of all previously deleted data from the file.
@@ -318,7 +347,14 @@ public:
   /// \brief Access element values for given instance
   /// @param sopInstanceUID A string with the uid for a given instance
   ///                       (corresponding file will be found via the database)
-  /// @param fileName Full path to a dicom file to load.
+  /// @param fileName Full path to a dicom file to load. Note that this string
+  /// can either be a file path or a URL since the database can have one or
+  /// both of these fields as of schema version 0.8.0.  Since the fileValue
+  /// api is widely used, this overload allows either value to be used to retrieve
+  /// values from the tag cache.  If a value is found for the fileName the
+  /// fileName it is returned; if not, the fileName is used as a URL.  If no
+  /// value is found for the URL, the fileName is used as a path to a dicom file
+  /// where the value is looked up.
   /// @param group The group portion of the tag as an integer
   /// @param element The element portion of the tag as an integer
   /// @Returns empty string if element is missing or excluded from storage.
@@ -394,6 +430,14 @@ public:
   /// inserted under the same patient.
   Q_INVOKABLE static QString compositePatientID(const QString& patientID, const QString& patientsName, const QString& patientsBirthDate);
 
+  /// Set a list of loaded series
+  void setLoadedSeries(const QStringList& seriesList);
+  QStringList loadedSeries() const;
+
+  /// Set a list of visible series
+  void setVisibleSeries(const QStringList& seriesList);
+  QStringList visibleSeries() const;
+
 Q_SIGNALS:
 
   /// Things inserted to database.
@@ -403,6 +447,13 @@ Q_SIGNALS:
   ///  - QString: patient Name (not unique)
   ///  - QString: patient Birth Date (not unique)
   void patientAdded(int, QString, QString, QString);
+  /// connectionNameAdded arguments:
+  ///  - int: database index of patient (unique) within CTK database
+  ///  - QString: patient ID (not unique across institutions)
+  ///  - QString: patient Name (not unique)
+  ///  - QString: patient Birth Date (not unique)
+  ///  - QString: connection name
+  void connectionNameAdded(int, QString, QString, QString, QString);
   /// studyAdded arguments:
   ///  - studyUID (unique)
   void studyAdded(QString);
@@ -413,6 +464,27 @@ Q_SIGNALS:
   /// instanceAdded arguments:
   ///  - instanceUID (unique)
   void instanceAdded(QString);
+
+  /// \brief This signal is emitted after a patient is removed by calling removePatient().
+  ///
+  /// \param patientID (not unique across institutions)
+  ///
+  /// \sa removePatient()
+  void patientRemoved(QString);
+
+  /// \brief This signal is emitted after a study is removed by calling removeStudy().
+  ///
+  /// \param studyInstanceUID (unique)
+  ///
+  /// \sa removeStudy()
+  void studyRemoved(QString);
+
+  /// \brief This signal is emitted after a series is removed by calling removeSeries().
+  ///
+  /// \param seriesInstanceUID (unique)
+  ///
+  /// \sa removeSeries()
+  void seriesRemoved(QString);
 
   /// This signal is emitted when the database has been opened.
   void opened();
@@ -453,4 +525,3 @@ private:
 };
 
 #endif
-

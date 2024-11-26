@@ -207,5 +207,3 @@ ${${MY_EXPORT_CUSTOM_CONTENT_FROM_VARIABLE}}
     )
 
 endmacro()
-
-

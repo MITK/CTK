@@ -21,13 +21,19 @@
 #ifndef __ctkThumbnailLabel_h
 #define __ctkThumbnailLabel_h
 
-// Qt includes 
+// Qt includes
+#include <QIcon>
 #include <QWidget>
 #include <QModelIndex>
 
 #include "ctkWidgetsExport.h"
 
+class ctkPushButton;
 class ctkThumbnailLabelPrivate;
+
+class QFrame;
+class QLabel;
+class QProgressBar;
 
 /// \ingroup Widgets
 /// ctkThumbnailLabel is an advanced label that gives control over
@@ -49,6 +55,12 @@ class CTK_WIDGETS_EXPORT ctkThumbnailLabel : public QWidget
   /// Optional pixmap for the label.
   /// No pixmap by default
   Q_PROPERTY(QPixmap pixmap READ pixmap WRITE setPixmap)
+  /// Progress bar status.
+  Q_PROPERTY(int operationProgress READ operationProgress WRITE setOperationProgress)
+  /// Operation status.
+  Q_PROPERTY(OperationStatus operationStatus READ operationStatus WRITE setOperationStatus)
+  /// Set status icon.
+  Q_PROPERTY(QIcon statusIcon READ statusIcon WRITE setStatusIcon)
   /// Controls the quality of the resizing of the pixmap.
   /// Qt::FastTransformation by default
   Q_PROPERTY(Qt::TransformationMode transformationMode READ transformationMode WRITE setTransformationMode)
@@ -64,11 +76,32 @@ public:
   explicit ctkThumbnailLabel(QWidget* parent=0);
   virtual ~ctkThumbnailLabel();
 
+  Q_INVOKABLE ctkPushButton* textPushButton();
+  Q_INVOKABLE QFrame* pixmapFrame();
+  Q_INVOKABLE QLabel* pixmapLabel();
+  Q_INVOKABLE QProgressBar* operationProgressBar();
+
   void setText(const QString& text);
   QString text()const;
 
   void setTextPosition(const Qt::Alignment& alignment);
   Qt::Alignment textPosition()const;
+
+  enum OperationStatus{
+    NoOperation = 0,
+    InProgress = 1,
+    Completed = 2,
+    Failed = 3
+  };
+
+  void setOperationStatus(const OperationStatus& status);
+  OperationStatus operationStatus()const;
+
+  void setStatusIcon(const QIcon& icon);
+  QIcon statusIcon()const;
+
+  void setOperationProgress(const int& progress);
+  int operationProgress()const;
 
   void setPixmap(const QPixmap& pixmap);
   const QPixmap* pixmap()const;
@@ -102,6 +135,7 @@ private:
 Q_SIGNALS:
   void selected(const ctkThumbnailLabel& widget);
   void doubleClicked(const ctkThumbnailLabel& widget);
+  void statusPushButtonClicked(bool);
 };
 
 #endif

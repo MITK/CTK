@@ -37,7 +37,7 @@
 int ctkDynamicSpacerTest2(int argc, char * argv [] )
 {
   QApplication app(argc, argv);
-  
+
   QWidget topLevel;
   ctkCollapsibleButton* button = new ctkCollapsibleButton("Collapsible button");
   QTreeView* view = new QTreeView;
@@ -46,34 +46,33 @@ int ctkDynamicSpacerTest2(int argc, char * argv [] )
   button->setLayout(collapsibleLayout);
 
   ctkDynamicSpacer* spacer = new ctkDynamicSpacer;
-  
+
   QVBoxLayout* layout = new QVBoxLayout;
   layout->addWidget(button);
   layout->addWidget(spacer);
   topLevel.setLayout(layout);
-  
+
   view->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   spacer->setInactiveSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
   spacer->setActiveSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-  
+
   QObject::connect(button, SIGNAL(contentsCollapsed(bool)),
                    spacer, SLOT(setActive(bool)));
   spacer->setPalette(QPalette(Qt::red));
   spacer->setAutoFillBackground(true);
 
   topLevel.show();
-  
+
   if (spacer->height() != 0)
-    {
+  {
     std::cerr << "ctkDynamicSpacer failed: " << spacer->height() << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   if (argc < 2 || QString(argv[1]) != "-I" )
-    {
+  {
     QTimer::singleShot(200, &app, SLOT(quit()));
-    }
+  }
 
   return app.exec();
 }
-

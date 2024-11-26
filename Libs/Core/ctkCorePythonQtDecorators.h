@@ -25,9 +25,11 @@
 #include <PythonQt.h>
 
 // CTK includes
+#include <ctkAbstractJob.h> // For ctkJobDetail
 #include <ctkBooleanMapper.h>
-#include <ctkUtils.h>
 #include <ctkErrorLogContext.h>
+#include <ctkLogger.h>
+#include <ctkUtils.h>
 #include <ctkWorkflowStep.h>
 #include <ctkWorkflowTransitions.h>
 
@@ -38,6 +40,8 @@
 // for non-static methods.
 //
 
+static ctkLogger logger("org.commontk.core.ctkCorePythonQtDecorators");
+
 /// \ingroup Core
 class ctkCorePythonQtDecorators : public QObject
 {
@@ -45,12 +49,13 @@ class ctkCorePythonQtDecorators : public QObject
 public:
 
   ctkCorePythonQtDecorators()
-    {
+  {
     PythonQt::self()->registerClass(&ctkBooleanMapper::staticMetaObject, "CTKCore");
     PythonQt::self()->registerCPPClass("ctkErrorLogContext", 0, "CTKCore");
+    PythonQt::self()->registerCPPClass("ctkJobDetail", 0, "CTKCore");
     PythonQt::self()->registerCPPClass("ctkWorkflowStep", 0, "CTKCore");
     PythonQt::self()->registerClass(&ctkWorkflowInterstepTransition::staticMetaObject, "CTKCore");
-    }
+  }
 
 public Q_SLOTS:
 
@@ -59,180 +64,333 @@ public Q_SLOTS:
   //
 
   ctkBooleanMapper* new_ctkBooleanMapper(QObject* targetObject, const QByteArray& propertyName, const QByteArray& signal)
-    {
+{
     return new ctkBooleanMapper(targetObject, propertyName, signal);
-    }
+}
 
   //
   // ctkWorkflowStep
   //
 
   ctkWorkflowStep* new_ctkWorkflowStep()
-    {
+  {
     return new ctkWorkflowStep();
-    }
+  }
 
   ctkWorkflowStep* new_ctkWorkflowStep(const QString& newId)
-    {
+  {
     return new ctkWorkflowStep(newId);
-    }
+  }
 
   void delete_ctkWorkflowStep(ctkWorkflowStep * step)
-    {
+  {
     delete step;
-    }
+  }
 
   ctkWorkflow* workflow(ctkWorkflowStep* step)const
-    {
+  {
     return step->workflow();
-    }
+  }
 
   QString id(ctkWorkflowStep* step)const
-    {
+  {
     return step->id();
-    }
+  }
 
   void setId(ctkWorkflowStep* step, const QString& newId)const
-    {
+  {
     step->setId(newId);
-    }
+  }
 
   QString name(ctkWorkflowStep* step)const
-    {
+  {
     return step->name();
-    }
+  }
 
   void setName(ctkWorkflowStep* step, const QString& newName)
-    {
+  {
     step->setName(newName);
-    }
+  }
 
   QString description(ctkWorkflowStep* step)const
-    {
+  {
     return step->description();
-    }
+  }
 
   void setDescription(ctkWorkflowStep* step, const QString& newDescription)
-    {
+  {
     step->setDescription(newDescription);
-    }
+  }
 
   QString statusText(ctkWorkflowStep* step)const
-    {
+  {
     return step->statusText();
-    }
+  }
 
   bool hasValidateCommand(ctkWorkflowStep* step)const
-    {
+  {
     return step->hasValidateCommand();
-    }
+  }
 
   void setHasValidateCommand(ctkWorkflowStep* step, bool newHasValidateCommand)
-    {
+  {
     step->setHasValidateCommand(newHasValidateCommand);
-    }
+  }
 
   bool hasOnEntryCommand(ctkWorkflowStep* step)const
-    {
+  {
     return step->hasOnEntryCommand();
-    }
+  }
 
   void setHasOnEntryCommand(ctkWorkflowStep* step, bool newHasOnEntryCommand)
-    {
+  {
     step->setHasOnEntryCommand(newHasOnEntryCommand);
-    }
+  }
 
   bool hasOnExitCommand(ctkWorkflowStep* step)const
-    {
+  {
     return step->hasOnExitCommand();
-    }
+  }
 
   void setHasOnExitCommand(ctkWorkflowStep* step, bool newHasOnExitCommand)
-    {
+  {
     step->setHasOnExitCommand(newHasOnExitCommand);
-    }
+  }
 
   QObject* ctkWorkflowStepQObject(ctkWorkflowStep* step)
-    {
+  {
     return step->ctkWorkflowStepQObject();
-    }
+  }
 
   //
   // ctkWorkflowInterstepTransition
   //
   ctkWorkflowInterstepTransition* new_ctkWorkflowInterstepTransition(ctkWorkflowInterstepTransition::InterstepTransitionType newTransitionType)
-    {
+  {
     return new ctkWorkflowInterstepTransition(newTransitionType);
-    }
+  }
 
   ctkWorkflowInterstepTransition* new_ctkWorkflowInterstepTransition(ctkWorkflowInterstepTransition::InterstepTransitionType newTransitionType, const QString& newId)
-    {
+  {
     return new ctkWorkflowInterstepTransition(newTransitionType, newId);
-    }
+  }
 
   void delete_ctkWorkflowInterstepTransition(ctkWorkflowInterstepTransition * transition)
-    {
+  {
     delete transition;
-    }
+  }
 
   //
   // ctkErrorLogContext
   //
   ctkErrorLogContext* new_ctkErrorLogContext()
-    {
+  {
     return new ctkErrorLogContext();
-    }
+  }
 
   ctkErrorLogContext* new_ctkErrorLogContext(const QString& msg)
-    {
+  {
     return new ctkErrorLogContext(msg);
-    }
+  }
 
   void setCategory(ctkErrorLogContext* context, const QString& category)
-    {
+  {
     context->Category = category;
-    }
+  }
   QString category(ctkErrorLogContext* context)
-    {
+  {
     return context->Category;
-    }
+  }
 
   void setLine(ctkErrorLogContext* context, int line)
-    {
+  {
     context->Line = line;
-    }
+  }
   int line(ctkErrorLogContext* context)
-    {
+  {
     return context->Line;
-    }
+  }
 
   void setFile(ctkErrorLogContext* context, const QString& file)
-    {
+  {
     context->File = file;
-    }
+  }
   QString file(ctkErrorLogContext* context)
-    {
+  {
     return context->File;
-    }
+  }
 
   void setFunction(ctkErrorLogContext* context, const QString& function)
-    {
+  {
     context->Function = function;
-    }
+  }
   QString function(ctkErrorLogContext* context)
-    {
+  {
     return context->Function;
-    }
+  }
 
   void setMessage(ctkErrorLogContext* context, const QString& message)
-    {
+  {
     context->Message = message;
-    }
+  }
   QString message(ctkErrorLogContext* context)
-    {
+  {
     return context->Message;
+  }
+
+  //
+  // ctkJobDetail
+  //
+  ctkJobDetail* new_ctkJobDetail()
+  {
+    return new ctkJobDetail();
+  }
+
+  void setJobClass(ctkJobDetail* td, const QString& jobClass)
+  {
+    if (td == nullptr)
+    {
+      logger.error("ctkJobDetail::setJobClass - Invalid ctkJobDetail");
+      return;
     }
 
+    td->JobClass = jobClass;
+  }
+  QString jobClass(ctkJobDetail* td)
+  {
+    if (td == nullptr)
+    {
+      logger.error("ctkJobDetail::jobClass - Invalid ctkJobDetail");
+      return "";
+    }
+
+    return td->JobClass;
+  }
+
+  void setJobUID(ctkJobDetail* td, const QString& jobUID)
+  {
+    if (td == nullptr)
+    {
+      logger.error("ctkJobDetail::setJobUID - Invalid ctkJobDetail");
+      return;
+    }
+
+    td->JobUID = jobUID;
+  }
+  QString JobUID(ctkJobDetail* td)
+  {
+    if (td == nullptr)
+    {
+      logger.error("ctkJobDetail::JobUID - Invalid ctkJobDetail");
+      return "";
+    }
+
+    return td->JobUID;
+  }
+
+  void setCreationDateTime(ctkJobDetail* td, QString creationDateTime)
+  {
+    if (td == nullptr)
+    {
+      logger.error("ctkJobDetail::setCreationDateTime - Invalid ctkJobDetail");
+      return;
+    }
+
+    td->CreationDateTime = creationDateTime;
+  }
+  QString creationDateTime(ctkJobDetail* td)
+  {
+    if (td == nullptr)
+    {
+      logger.error("ctkJobDetail::creationDateTime - Invalid ctkJobDetail");
+      return "";
+    }
+
+    return td->CreationDateTime;
+  }
+
+  void setStartDateTime(ctkJobDetail* td, QString startDateTime)
+  {
+    if (td == nullptr)
+    {
+      logger.error("ctkJobDetail::setStartDateTime - Invalid ctkJobDetail");
+      return;
+    }
+
+    td->StartDateTime = startDateTime;
+  }
+  QString startDateTime(ctkJobDetail* td)
+  {
+    if (td == nullptr)
+    {
+      logger.error("ctkJobDetail::startDateTime - Invalid ctkJobDetail");
+      return "";
+    }
+
+    return td->StartDateTime;
+  }
+
+  void setCompletionDateTime(ctkJobDetail* td, QString completionDateTime)
+  {
+    if (td == nullptr)
+    {
+      logger.error("ctkJobDetail::setCompletionDateTime - Invalid ctkJobDetail");
+      return;
+    }
+
+    td->CompletionDateTime = completionDateTime;
+  }
+  QString completionDateTime(ctkJobDetail* td)
+  {
+    if (td == nullptr)
+    {
+      logger.error("ctkJobDetail::completionDateTime - Invalid ctkJobDetail");
+      return "";
+    }
+
+    return td->CompletionDateTime;
+  }
+
+  void setRunningThreadID(ctkJobDetail* td, QString runningThreadID)
+  {
+    if (td == nullptr)
+    {
+      logger.error("ctkJobDetail::setRunningThreadID - Invalid ctkJobDetail");
+      return;
+    }
+
+    td->RunningThreadID = runningThreadID;
+  }
+  QString runningThreadID(ctkJobDetail* td)
+  {
+    if (td == nullptr)
+    {
+      logger.error("ctkJobDetail::runningThreadID - Invalid ctkJobDetail");
+      return "";
+    }
+
+    return td->RunningThreadID;
+  }
+
+  void setLogging(ctkJobDetail* td, QString logging)
+  {
+    if (td == nullptr)
+    {
+      logger.error("ctkJobDetail::setLogging - Invalid ctkJobDetail");
+      return;
+    }
+    td->Logging = logging;
+  }
+  QString logging(ctkJobDetail* td)
+  {
+    if (td == nullptr)
+    {
+      logger.error("ctkJobDetail::logging - Invalid ctkJobDetail");
+      return "";
+    }
+
+    return td->Logging;
+  }
 };
 
 //-----------------------------------------------------------------------------
@@ -242,14 +400,14 @@ class PythonQtWrapper_CTKCore : public QObject
 
 public Q_SLOTS:
   QString static_ctkCoreUtils_absolutePathFromInternal(const QString& internalPath, const QString& basePath)
-    {
+  {
     return ctk::absolutePathFromInternal(internalPath, basePath);
-    }
+  }
 
   QString static_ctkCoreUtils_internalPathFromAbsolute(const QString& absolutePath, const QString& basePath)
-    {
+  {
     return ctk::internalPathFromAbsolute(absolutePath, basePath);
-    }
+  }
 };
 
 //-----------------------------------------------------------------------------

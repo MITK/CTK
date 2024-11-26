@@ -320,4 +320,3 @@ QList<ctkServiceRegistration> ctkServices::getUsedByPlugin(QSharedPointer<ctkPlu
   }
   return res;
 }
-

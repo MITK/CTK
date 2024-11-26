@@ -38,7 +38,7 @@
 #include <ctkDICOMAppWidget.h>
 #include <ctkDICOMBrowser.h>
 
-// Host logic 
+// Host logic
 #include "ctkDICOMHostMainLogic.h"
 
 // ctkDICOMCore includes
@@ -64,14 +64,14 @@ int main(int argc, char** argv)
   QSharedPointer<ctkPluginFramework> framework = fwFactory.getFramework();
 
   try
-    {
+  {
     framework->init();
-    }
+  }
   catch (const ctkPluginException& exc)
-    {
+  {
     qCritical() << "Failed to initialize the plug-in framework:" << exc;
     return EXIT_FAILURE;
-    }
+  }
 
 #ifdef CMAKE_INTDIR
   QString pluginPath = CTK_PLUGIN_DIR CMAKE_INTDIR "/";
@@ -91,32 +91,32 @@ int main(int argc, char** argv)
 
   QList<QSharedPointer<ctkPlugin> > installedPlugins;
   while(dirIter.hasNext())
-    {
+  {
     try
-      {
+    {
       QString fileLocation = dirIter.next();
       foreach(QString pluginToInstall, pluginsToInstall)
-        {
+      {
         if (fileLocation.contains(pluginToInstall))
-          {
+        {
           QSharedPointer<ctkPlugin> plugin = framework->getPluginContext()->installPlugin(QUrl::fromLocalFile(fileLocation));
           installedPlugins << plugin;
           break;
-          }
         }
       }
-    catch (const ctkPluginException& e)
-      {
-      qCritical() << e.what();
-      }
     }
+    catch (const ctkPluginException& e)
+    {
+      qCritical() << e.what();
+    }
+  }
 
   framework->start();
 
   foreach(QSharedPointer<ctkPlugin> plugin, installedPlugins)
-    {
+  {
     plugin->start();
-    }
+  }
   // end startup plugin framework and dah
 
   // set up Qt resource files
@@ -125,7 +125,7 @@ int main(int argc, char** argv)
   QSettings settings;
   QString databaseDirectory;
 
-  // set up the database 
+  // set up the database
   if (argc > 1)
   {
     QString directory(argv[1]);
@@ -143,7 +143,7 @@ int main(int argc, char** argv)
   }
 
   QDir qdir(databaseDirectory);
-  if ( !qdir.exists(databaseDirectory) ) 
+  if ( !qdir.exists(databaseDirectory) )
   {
     if ( !qdir.mkpath(databaseDirectory) )
     {

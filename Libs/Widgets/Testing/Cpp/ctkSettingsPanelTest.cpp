@@ -55,13 +55,13 @@ void ctkSettingsPanelTester::testChangeProperty()
   QFETCH(bool, registerSpecificSettings);
   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "Common ToolKit", "CTK");
   QSettings specificSettings(QSettings::IniFormat, QSettings::UserScope, "Common ToolKit", "CTK-specific");
-  
+
   // Clear settings
   settings.clear();
   settings.sync();
   specificSettings.clear();
   specificSettings.sync();
-  
+
   QSpinBox spinBox;
   ctkSettingsPanel panel;
   panel.setSettings(&settings);
@@ -82,13 +82,13 @@ void ctkSettingsPanelTester::testChangeProperty()
   QFETCH(int, value);
   QFETCH(bool, setOnObject);
   if (setOnObject)
-    {
+  {
     spinBox.setValue(value);
-    }
+  }
   else
-    {
+  {
     panel.setSetting("property", QVariant(value));
-    }
+  }
 
   QFETCH(int, expectedSettingChangedCount);
   QCOMPARE(spy.count(), expectedSettingChangedCount);
@@ -98,59 +98,59 @@ void ctkSettingsPanelTester::testChangeProperty()
   // make sure it didn't change
   QCOMPARE(panel.settingLabel("property"), label);
   QCOMPARE(panel.settingOptions("property"), options);
-  
+
   QString currentSettingContent;
   {
     settings.sync();
     if (QFile::exists(settings.fileName()))
-      {
+    {
       QFile file(settings.fileName());
-      QVERIFY(file.open(QIODevice::ReadOnly));
+      QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
       currentSettingContent = file.readAll();
       file.close();
-      }
+    }
   }
-  
+
   QString currentSpecificSettingsContent;
   {
     specificSettings.sync();
     if (QFile::exists(specificSettings.fileName()))
-      {
+    {
       QFile file(specificSettings.fileName());
-      QVERIFY(file.open(QIODevice::ReadOnly));
+      QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
       currentSpecificSettingsContent = file.readAll();
       file.close();
-      }
+    }
   }
 
   QString expectedSettingsContent = QLatin1String("[General]\nproperty=%1\n");
- 
+
   if (expectedChangedSettings.count() > 0)
-    {
+  {
     if (registerSpecificSettings)
-      {
+    {
       QCOMPARE(currentSettingContent, QString(""));
       QCOMPARE(currentSpecificSettingsContent, expectedSettingsContent.arg(value));
-      }
+    }
     else
-      {
+    {
       QCOMPARE(currentSettingContent, expectedSettingsContent.arg(value));
       QCOMPARE(currentSpecificSettingsContent, QString(""));
-      }
     }
+  }
   else
-    {
+  {
     if (registerSpecificSettings)
-      {
+    {
       QCOMPARE(currentSettingContent, QString(""));
       QCOMPARE(currentSpecificSettingsContent, expectedSettingsContent.arg(1));
-      }
+    }
     else
-      {
+    {
       QCOMPARE(currentSettingContent, expectedSettingsContent.arg(1));
       QCOMPARE(currentSpecificSettingsContent, QString(""));
-      }
     }
+  }
 
   panel.resetSettings();
 }
@@ -191,7 +191,7 @@ void ctkSettingsPanelTester::testChangeProperty_data()
   QTest::newRow("label RequireRestart changed panel") << QString("label") << ctkSettingsPanel::SettingOptions(ctkSettingsPanel::OptionRequireRestart) << 2 << false << false << 1 << QStringList("property");
   QTest::newRow("label RequireRestart unchanged obj") << QString("label") << ctkSettingsPanel::SettingOptions(ctkSettingsPanel::OptionRequireRestart) << 1 << true << false << 0 << QStringList();
   QTest::newRow("label RequireRestart unchanged panel") << QString("label") << ctkSettingsPanel::SettingOptions(ctkSettingsPanel::OptionRequireRestart) << 1 << false << false << 0 << QStringList();
-  
+
   // registerSpecificSettings: true
   QTest::newRow("null none changed obj") << QString() << ctkSettingsPanel::SettingOptions(ctkSettingsPanel::OptionNone) << 2 << true << true << 1 << QStringList("property");
   QTest::newRow("null none changed panel") << QString() << ctkSettingsPanel::SettingOptions(ctkSettingsPanel::OptionNone) << 2 << false << true << 1 << QStringList("property");
@@ -226,17 +226,17 @@ class ctkSettingsPanelForTest : public ctkSettingsPanel
 {
 public:
   QVariant myDefaultPropertyValue(const QString& key) const
-    {
+  {
     return this->defaultPropertyValue(key);
-    }
+  }
   QVariant myPreviousPropertyValue(const QString& key) const
-    {
+  {
     return this->previousPropertyValue(key);
-    }
+  }
   QVariant myPropertyValue(const QString& key) const
-    {
+  {
     return this->propertyValue(key);
-    }
+  }
 };
 
 } // end of anonymous namespace
@@ -288,9 +288,9 @@ void ctkSettingsPanelTester::testResetRestoreReloadSettings()
 
   QFETCH(bool, setSettingsValue);
   if (setSettingsValue)
-    {
+  {
     settings.setValue("key 1", settingsValue);
-    }
+  }
 
   QSpinBox spinBox;
   spinBox.setValue(initValue);
@@ -302,33 +302,33 @@ void ctkSettingsPanelTester::testResetRestoreReloadSettings()
 
   QFETCH(bool, setSpinBoxValue);
   if (setSpinBoxValue)
-    {
+  {
     spinBox.setValue(newValue);
-    }
+  }
 
   QFETCH(bool, applySettings);
   if (applySettings)
-    {
+  {
     settingsPanel.applySettings();
-    }
+  }
 
   QFETCH(bool, resetSettings);
   if (resetSettings)
-    {
+  {
     settingsPanel.resetSettings();
-    }
+  }
 
   QFETCH(bool, restoreDefaultSettings);
   if (restoreDefaultSettings)
-    {
+  {
     settingsPanel.restoreDefaultSettings();
-    }
+  }
 
   QFETCH(bool, reloadSettings);
   if (reloadSettings)
-    {
+  {
     settingsPanel.reloadSettings();
-    }
+  }
 
   QFETCH(int, finalValue);
   QCOMPARE(settings.value("key 1").toInt(), finalValue);

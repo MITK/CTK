@@ -78,7 +78,7 @@ ctkTransferFunctionItem::ctkTransferFunctionItem(
 //-----------------------------------------------------------------------------
 ctkTransferFunctionItem::~ctkTransferFunctionItem()
 {
-  
+
 }
 
 //-----------------------------------------------------------------------------
@@ -87,10 +87,10 @@ void ctkTransferFunctionItem::setTransferFunction(ctkTransferFunction* transferF
   Q_D(ctkTransferFunctionItem);
   d->TransferFunction = transferFunction;
   if (this->scene())
-    {
+  {
     connect(d->TransferFunction,SIGNAL(changed()),
             this->scene(), SLOT(update()),Qt::UniqueConnection);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -105,9 +105,9 @@ void ctkTransferFunctionItem::setRect(const QRectF& newRect)
 {
   Q_D(ctkTransferFunctionItem);
   if (d->Rect == newRect)
-    {
+  {
     return;
-    }
+  }
   d->Rect = newRect;
   this->update();
 }
@@ -132,8 +132,8 @@ QList<ctkPoint> ctkTransferFunctionItem::bezierParams(
 {
   Q_ASSERT(start);
   Q_ASSERT(end);
-  QList<ctkPoint> points; 
-  
+  QList<ctkPoint> points;
+
   ctkBezierControlPoint* bezierCP = dynamic_cast<ctkBezierControlPoint*>(start);
   if (!bezierCP)
     {// just duplicate start and end into p1 and p2
@@ -143,7 +143,7 @@ QList<ctkPoint> ctkTransferFunctionItem::bezierParams(
     points << end->P;
     return points;
     }
-  
+
   points << start->P;
   points << bezierCP->P1;
   points << bezierCP->P2;
@@ -156,12 +156,12 @@ QList<ctkPoint> ctkTransferFunctionItem::nonLinearPoints(
   ctkControlPoint* start, ctkControlPoint* end) const
 {
   Q_ASSERT(start);
-    
-  ctkNonLinearControlPoint* nonLinearCP = 
+
+  ctkNonLinearControlPoint* nonLinearCP =
     dynamic_cast<ctkNonLinearControlPoint*>(start);
   if (!nonLinearCP)
     {
-    QList<ctkPoint> points; 
+    QList<ctkPoint> points;
     points << start->P;
     points << end->P;
     return points;
@@ -171,7 +171,7 @@ QList<ctkPoint> ctkTransferFunctionItem::nonLinearPoints(
 
 //-----------------------------------------------------------------------------
 qreal ctkTransferFunctionItem::y(const QVariant& v) const
-{ 
+{
   Q_ASSERT(v.canConvert<qreal>() || v.canConvert<QColor>());
   if (v.canConvert<QColor>())
     {
@@ -182,7 +182,7 @@ qreal ctkTransferFunctionItem::y(const QVariant& v) const
 
 //-----------------------------------------------------------------------------
 QColor ctkTransferFunctionItem::color(const QVariant& v) const
-{ 
+{
   //Q_ASSERT(v.canConvert<QColor>());
   if (v.canConvert<QColor>())
     {
@@ -324,9 +324,9 @@ QVariant ctkTransferFunctionItem::itemChange(QGraphicsItem::GraphicsItemChange c
 {
   QVariant res = this->QGraphicsObject::itemChange(change, value);
   if (change == QGraphicsItem::ItemSceneHasChanged && this->scene())
-    {
+  {
     connect(this->transferFunction(),SIGNAL(changed()),
             this->scene(), SLOT(update()),Qt::UniqueConnection);
-    }
+  }
   return res;
 }

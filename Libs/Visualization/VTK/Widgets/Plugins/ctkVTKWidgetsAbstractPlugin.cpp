@@ -29,26 +29,26 @@ ctkVTKWidgetsAbstractPlugin::ctkVTKWidgetsAbstractPlugin()
 
 //-----------------------------------------------------------------------------
 QString ctkVTKWidgetsAbstractPlugin::group() const
-{ 
+{
   return "CTK [VTK Widgets]";
 }
 
 //-----------------------------------------------------------------------------
 QIcon ctkVTKWidgetsAbstractPlugin::icon() const
 {
-  return QIcon(); 
+  return QIcon();
 }
 
 //-----------------------------------------------------------------------------
 QString ctkVTKWidgetsAbstractPlugin::toolTip() const
-{ 
-  return QString(); 
+{
+  return QString();
 }
 
 //-----------------------------------------------------------------------------
 QString ctkVTKWidgetsAbstractPlugin::whatsThis() const
 {
-  return QString(); 
+  return QString();
 }
 
 //-----------------------------------------------------------------------------
@@ -56,8 +56,8 @@ void ctkVTKWidgetsAbstractPlugin::initialize(QDesignerFormEditorInterface *formE
 {
   Q_UNUSED(formEditor);
   if (this->Initialized)
-    {
+  {
     return;
-    }
+  }
   this->Initialized = true;
 }

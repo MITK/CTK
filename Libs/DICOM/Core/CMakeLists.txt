@@ -16,23 +16,75 @@ set(KIT_SRCS
   ctkDICOMItem.h
   ctkDICOMDisplayedFieldGenerator.cpp
   ctkDICOMDisplayedFieldGenerator.h
+  ctkDICOMEcho.cpp
+  ctkDICOMEcho.h
+  ctkDICOMEchoJob.cpp
+  ctkDICOMEchoJob.h
+  ctkDICOMEchoJob_p.h
+  ctkDICOMEchoWorker.cpp
+  ctkDICOMEchoWorker.h
+  ctkDICOMEchoWorker_p.h
   ctkDICOMFilterProxyModel.cpp
   ctkDICOMFilterProxyModel.h
   ctkDICOMIndexer.cpp
   ctkDICOMIndexer.h
   ctkDICOMIndexer_p.h
+  ctkDICOMInserter.cpp
+  ctkDICOMInserter.h
+  ctkDICOMInserterJob.cpp
+  ctkDICOMInserterJob.h
+  ctkDICOMInserterWorker.cpp
+  ctkDICOMInserterWorker.h
+  ctkDICOMInserterWorker_p.h
   ctkDICOMItem.cpp
   ctkDICOMItem.h
+  ctkDICOMJob.cpp
+  ctkDICOMJob.h
+  ctkDICOMJobResponseSet.cpp
+  ctkDICOMJobResponseSet.h
   ctkDICOMModel.cpp
   ctkDICOMModel.h
   ctkDICOMPersonName.cpp
   ctkDICOMPersonName.h
   ctkDICOMQuery.cpp
   ctkDICOMQuery.h
+  ctkDICOMQueryJob.cpp
+  ctkDICOMQueryJob.h
+  ctkDICOMQueryJob_p.h
+  ctkDICOMQueryWorker.cpp
+  ctkDICOMQueryWorker.h
+  ctkDICOMQueryWorker_p.h
   ctkDICOMRetrieve.cpp
   ctkDICOMRetrieve.h
+  ctkDICOMRetrieveJob.cpp
+  ctkDICOMRetrieveJob.h
+  ctkDICOMRetrieveJob_p.h
+  ctkDICOMRetrieveWorker.cpp
+  ctkDICOMRetrieveWorker.h
+  ctkDICOMRetrieveWorker_p.h
+  ctkDICOMScheduler.cpp
+  ctkDICOMScheduler.h
+  ctkDICOMScheduler_p.h
+  ctkDICOMServer.cpp
+  ctkDICOMServer.h
+  ctkDICOMStorageListener.cpp
+  ctkDICOMStorageListener.h
+  ctkDICOMStorageListenerJob.cpp
+  ctkDICOMStorageListenerJob.h
+  ctkDICOMStorageListenerJob_p.h
+  ctkDICOMStorageListenerWorker.cpp
+  ctkDICOMStorageListenerWorker.h
+  ctkDICOMStorageListenerWorker_p.h
   ctkDICOMTester.cpp
   ctkDICOMTester.h
+  ctkDICOMThumbnailGenerator.cpp
+  ctkDICOMThumbnailGenerator.h
+  ctkDICOMThumbnailGeneratorJob.cpp
+  ctkDICOMThumbnailGeneratorJob.h
+  ctkDICOMThumbnailGeneratorJob_p.h
+  ctkDICOMThumbnailGeneratorWorker.cpp
+  ctkDICOMThumbnailGeneratorWorker.h
+  ctkDICOMThumbnailGeneratorWorker_p.h
   ctkDICOMUtil.cpp
   ctkDICOMUtil.h
   ctkDICOMDisplayedFieldGeneratorRuleFactory.h
@@ -66,13 +118,45 @@ set(KIT_MOC_SRCS
   ctkDICOMDisplayedFieldGenerator.h
   ctkDICOMDisplayedFieldGenerator_p.h
   ctkDICOMDisplayedFieldGeneratorRuleFactory.h
+  ctkDICOMEcho.h
+  ctkDICOMEchoJob.h
+  ctkDICOMEchoJob_p.h
+  ctkDICOMEchoWorker.h
+  ctkDICOMEchoWorker_p.h
   ctkDICOMIndexer.h
   ctkDICOMIndexer_p.h
+  ctkDICOMInserter.h
+  ctkDICOMInserterJob.h
+  ctkDICOMInserterWorker.h
+  ctkDICOMInserterWorker_p.h
+  ctkDICOMJob.h
+  ctkDICOMJobResponseSet.h
   ctkDICOMFilterProxyModel.h
   ctkDICOMModel.h
   ctkDICOMQuery.h
+  ctkDICOMQueryJob.h
+  ctkDICOMQueryJob_p.h
+  ctkDICOMQueryWorker.h
+  ctkDICOMQueryWorker_p.h
   ctkDICOMRetrieve.h
+  ctkDICOMRetrieveJob.h
+  ctkDICOMRetrieveJob_p.h
+  ctkDICOMRetrieveWorker.h
+  ctkDICOMRetrieveWorker_p.h
+  ctkDICOMScheduler.h
+  ctkDICOMScheduler_p.h
+  ctkDICOMServer.h
+  ctkDICOMStorageListener.h
+  ctkDICOMStorageListenerJob.h
+  ctkDICOMStorageListenerJob_p.h
+  ctkDICOMStorageListenerWorker.h
+  ctkDICOMStorageListenerWorker_p.h
   ctkDICOMTester.h
+  ctkDICOMThumbnailGenerator.h
+  ctkDICOMThumbnailGeneratorJob.h
+  ctkDICOMThumbnailGeneratorJob_p.h
+  ctkDICOMThumbnailGeneratorWorker.h
+  ctkDICOMThumbnailGeneratorWorker_p.h
   )
 
 # UI files
@@ -88,14 +172,18 @@ set(KIT_resources
 # The following macro will read the target libraries from the file 'target_libraries.cmake'
 ctkFunctionGetTargetLibraries(KIT_target_libraries)
 
-if(TARGET DCMTK::dcmnet AND TARGET DCMTK::dcmjpeg)
-  if(DCMTK_LIBRARIES)
-    list(REMOVE_ITEM KIT_target_libraries ${DCMTK_LIBRARIES})
+# Support namespaced DCMTK targets
+set(_target_libraries)
+foreach(target_library IN LISTS KIT_target_libraries)
+  if(TARGET DCMTK::${target_library})
+    list(APPEND _target_libraries DCMTK::${target_library})
+  else()
+    list(APPEND _target_libraries ${target_library})
   endif()
-  list(APPEND KIT_target_libraries DCMTK::dcmnet DCMTK::dcmjpeg)
-endif()
+endforeach()
+set(KIT_target_libraries ${_target_libraries})
 
-list(APPEND KIT_target_libraries Qt${CTK_QT_VERSION}::Sql)
+list(APPEND KIT_target_libraries Qt${CTK_QT_VERSION}::Sql Qt${CTK_QT_VERSION}::Svg)
 
 if(CTK_QT_VERSION VERSION_GREATER "5")
   list(APPEND KIT_target_libraries Qt${CTK_QT_VERSION}::Core5Compat)
@@ -104,7 +192,6 @@ endif()
 # create a dcm query/retrieve service config file that points to the build dir
 set (DCMQRSCP_STORE_DIR ${CMAKE_CURRENT_BINARY_DIR}/Testing)
 configure_file( Resources/dcmqrscp.cfg.in dcmqrscp.cfg )
-set (DCMQRSCP_CONFIG ${CMAKE_CURRENT_BINARY_DIR}/dcmqrscp.cfg)
 
 ctkMacroBuildLib(
   NAME ${PROJECT_NAME}
@@ -119,7 +206,6 @@ ctkMacroBuildLib(
 
 if(DEFINED DCMTK_HAVE_CONFIG_H_OPTIONAL AND NOT DCMTK_HAVE_CONFIG_H_OPTIONAL)
   # Workaround Debian packaging issue - See FindDCMTK.cmake for more details
-  set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_DEFINITIONS ${DCMTK_DEFINITIONS})
   set_target_properties(${PROJECT_NAME} PROPERTIES INTERFACE_COMPILE_DEFINITIONS ${DCMTK_DEFINITIONS})
 endif()
 

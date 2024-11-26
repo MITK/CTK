@@ -30,9 +30,9 @@
 int ctkDependencyGraphTest1(int argc, char * argv [] )
 {
   if (argc > 1)
-    {
+  {
     std::cerr << argv[0] << " expects zero arguments" << std::endl;
-    }
+  }
 
   const int numberOfVertices = 14;
 
@@ -45,7 +45,7 @@ int ctkDependencyGraphTest1(int argc, char * argv [] )
   //
   // 6 - 8
   // |
-  // 7 - 5 - 1 - 2 - 
+  // 7 - 5 - 1 - 2 -
   // |       |     | - 9
   // |       4 - 3 -   |
   // |                 |
@@ -68,36 +68,36 @@ int ctkDependencyGraphTest1(int argc, char * argv [] )
   graph.insertEdge(10,7);
 
   int expectedNumberOfEdge = 15;
-  
+
   graph.printAdditionalInfo();
 //  graph.printGraph();  // printAdditionalInfo also prints graph.
-  
+
   int nov = graph.numberOfVertices();
 
   if( nov != numberOfVertices )
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   int noe = graph.numberOfEdges();
   if( noe != expectedNumberOfEdge )
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   bool cfc = graph.checkForCycle();
-  
+
   if( cfc == true )
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   bool cdtd = graph.cycleDetected();
 
   if( cdtd == true )
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   //int corigin = graph.cycleOrigin();
 
@@ -112,32 +112,32 @@ int ctkDependencyGraphTest1(int argc, char * argv [] )
   expectedPath.push_back(7);
 
   if (path != expectedPath)
-    {
+  {
     std::cerr << "Problem with findPath()" << std::endl;
     printIntegerList("current:", path);
     printIntegerList("expected:", expectedPath);
     return EXIT_FAILURE;
-    }
+  }
 
   path.clear();
   expectedPath.clear();
-  
+
   graph.findPath( 1, 7, path );
   expectedPath.push_back(1);
   expectedPath.push_back(5);
   expectedPath.push_back(7);
 
   if (path != expectedPath)
-    {
+  {
     std::cerr << "Problem with findPath()" << std::endl;
     printIntegerList("current:", path);
     printIntegerList("expected:", expectedPath);
     return EXIT_FAILURE;
-    }
+  }
 
   path.clear();
   expectedPath.clear();
-  
+
   graph.findPath( 3, 7, path );
   expectedPath.push_back(3);
   expectedPath.push_back(4);
@@ -146,28 +146,28 @@ int ctkDependencyGraphTest1(int argc, char * argv [] )
   expectedPath.push_back(7);
 
   if (path != expectedPath)
-    {
+  {
     std::cerr << "Problem with findPath()" << std::endl;
     printIntegerList("current:", path);
     printIntegerList("expected:", expectedPath);
     return EXIT_FAILURE;
-    }
+  }
 
   path.clear();
   expectedPath.clear();
-  
+
   graph.findPath( 2, 5, path );
   expectedPath.push_back(2);
   expectedPath.push_back(1);
   expectedPath.push_back(5);
 
   if (path != expectedPath)
-    {
+  {
     std::cerr << "Problem with findPath()" << std::endl;
     printIntegerList("current:", path);
     printIntegerList("expected:", expectedPath);
     return EXIT_FAILURE;
-    }
+  }
 
   path.clear();
   expectedPath.clear();
@@ -194,15 +194,15 @@ int ctkDependencyGraphTest1(int argc, char * argv [] )
 
   std::list<std::list<int>* >::const_iterator pathsIterator;
   for(pathsIterator = paths.begin(); pathsIterator != paths.end(); pathsIterator++)
-    {
+  {
     if (*(*pathsIterator) != expectedPath1 && *(*pathsIterator) != expectedPath2)
-      {
+    {
       printIntegerList("current:", *(*pathsIterator));
       printIntegerList("expected:", expectedPath1, false);
       printIntegerList(" or ", expectedPath2);
       return EXIT_FAILURE;
-      }
     }
+  }
 
   expectedPath1.clear();
   expectedPath2.clear();
@@ -232,16 +232,16 @@ int ctkDependencyGraphTest1(int argc, char * argv [] )
   expectedPath3.push_back(7);
 
   for(pathsIterator = paths.begin(); pathsIterator != paths.end(); pathsIterator++)
-    {
+  {
     if (*(*pathsIterator) != expectedPath1 && *(*pathsIterator) != expectedPath2 && *(*pathsIterator) != expectedPath3)
-      {
+    {
       printIntegerList("current:", *(*pathsIterator));
       printIntegerList("expected:", expectedPath1, false);
       printIntegerList(" or ", expectedPath2, false);
       printIntegerList(" or ", expectedPath3);
       return EXIT_FAILURE;
-      }
     }
+  }
 
   return EXIT_SUCCESS;
 }

@@ -346,6 +346,6 @@ void ctkPixmapIconEngine::virtual_hook(int id, void *data)
     }
     default:
       QIconEngine::virtual_hook(id, data);
-    }
+  }
 }
 #endif

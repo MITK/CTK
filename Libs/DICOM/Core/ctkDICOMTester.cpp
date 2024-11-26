@@ -50,7 +50,7 @@ public:
   QString findStoreSCUExecutable()const;
   QString findStoreSCPExecutable()const;
   void printProcessOutputs(const QString& program, QProcess* process)const;
-  
+
   QProcess*   DCMQRSCPProcess;
   QProcess*   STORESCPProcess;
   QString     DCMQRSCPExecutable;
@@ -84,25 +84,27 @@ ctkDICOMTesterPrivate::ctkDICOMTesterPrivate(ctkDICOMTester& o): q_ptr(&o)
   //  storescp 11113
   QStringList storescpArgs;
   storescpArgs << QString::number(this->STORESCPPort);
-  
+
   this->STORESCPProcess->start(this->StoreSCPExecutable, storescpArgs);
 }
 
 //------------------------------------------------------------------------------
 ctkDICOMTesterPrivate::~ctkDICOMTesterPrivate()
 {
-  this->STORESCPProcess->terminate();
-  if (!this->STORESCPProcess->waitForFinished())
-    {
+  // Do not wait for the process to finish.
+  // See https://doc.qt.io/qt-5/qprocess.html#terminate
+  // this->STORESCPProcess->terminate();
+  // if (!this->STORESCPProcess->waitForFinished())
+  {
     this->STORESCPProcess->kill();
-    }
+  }
   this->STORESCPProcess = 0;
 
   delete this->STORESCPProcess;
   if (this->DCMQRSCPProcess)
-    {
+  {
     delete this->DCMQRSCPProcess;
-    }
+  }
   this->DCMQRSCPProcess = 0;
 }
 
@@ -112,19 +114,19 @@ QString ctkDICOMTesterPrivate::findFile(const QStringList& nameFilters, const QS
   // Search in the build tree first
   QDir searchDir = QDir::current();
   do
-    {
+  {
     QFileInfo dcmExecutables(searchDir, subDir);
     if (dcmExecutables.isDir() &&
         dcmExecutables.exists())
-      {
+    {
       QDir bin(dcmExecutables.absoluteFilePath());
       QFileInfoList found = bin.entryInfoList(nameFilters, QDir::Files);
       if (found.count() > 0)
-        {
+      {
         return found[0].absoluteFilePath();
-        }
       }
     }
+  }
   while (searchDir.cdUp())
     ;
   // TODO: take care of the installed case
@@ -134,7 +136,9 @@ QString ctkDICOMTesterPrivate::findFile(const QStringList& nameFilters, const QS
 //------------------------------------------------------------------------------
 QString ctkDICOMTesterPrivate::findDCMQRSCPExecutable()const
 {
-  return this->findFile(QStringList("dcmqrscp*"), "CMakeExternals/Install/bin");  
+  QString executable = this->findFile(QStringList("dcmqrscp*"), "../DCMTK-build/bin");
+  // If not found, assume the executable is in the PATH
+  return executable.isEmpty() ? "dcmqrscp" : executable;
 }
 
 //------------------------------------------------------------------------------
@@ -146,13 +150,17 @@ QString ctkDICOMTesterPrivate::findDCMQRSCPConfigFile()const
 //------------------------------------------------------------------------------
 QString ctkDICOMTesterPrivate::findStoreSCUExecutable()const
 {
-  return this->findFile(QStringList("storescu*"), "CMakeExternals/Install/bin");  
+  QString executable = this->findFile(QStringList("storescu*"), "../DCMTK-build/bin");
+  // If not found, assume the executable is in the PATH
+  return executable.isEmpty() ? "storescu" : executable;
 }
 
 //------------------------------------------------------------------------------
 QString ctkDICOMTesterPrivate::findStoreSCPExecutable()const
 {
-  return this->findFile(QStringList("storescp*"), "CMakeExternals/Install/bin");  
+  QString executable = this->findFile(QStringList("storescp*"), "../DCMTK-build/bin");
+  // If not found, assume the executable is in the PATH
+  return executable.isEmpty() ? "storescp" : executable;
 }
 
 //------------------------------------------------------------------------------
@@ -163,16 +171,16 @@ void ctkDICOMTesterPrivate::printProcessOutputs(const QString& program, QProcess
 
   QByteArray standardOutput = process->readAllStandardOutput();
   if (standardOutput.size())
-    {  
+  {
     out << "Standard Output:\n";
     out << standardOutput;
-    }
+  }
   QByteArray standardError = process->readAllStandardError();
   if (standardError.size())
-    {  
+  {
     out << "Standard Error:\n";
     out << standardError;
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -216,7 +224,7 @@ QString ctkDICOMTester::dcmqrscpExecutable()const
   Q_D(const ctkDICOMTester);
   return d->DCMQRSCPExecutable;
 }
-  
+
 //------------------------------------------------------------------------------
 void ctkDICOMTester::setDCMQRSCPConfigFile(const QString& configFile)
 {
@@ -277,16 +285,16 @@ QProcess* ctkDICOMTester::startDCMQRSCP()
 {
   Q_D(ctkDICOMTester);
   if (d->DCMQRSCPProcess)
-    {
+  {
     return 0;
-    }
+  }
   d->DCMQRSCPProcess = new QProcess(this);
 
   QStringList dcmqrscpArgs;
   if (!d->DCMQRSCPConfigFile.isEmpty())
-    {
+  {
     dcmqrscpArgs << "--config" << d->DCMQRSCPConfigFile;
-    }
+  }
   //dcmqrscp_args << "--debug" << "--verbose";
   dcmqrscpArgs << QString::number(d->DCMQRSCPPort);
 
@@ -301,9 +309,9 @@ bool ctkDICOMTester::stopDCMQRSCP()
 {
   Q_D(ctkDICOMTester);
   if (!d->DCMQRSCPProcess)
-    {
+  {
     return false;
-    }
+  }
 
   d->DCMQRSCPProcess->kill();
   bool res = d->DCMQRSCPProcess->waitForFinished(-1);
@@ -321,25 +329,25 @@ bool ctkDICOMTester::storeData(const QStringList& data)
   Q_D(ctkDICOMTester);
 
   if (data.count() == 0)
-    {
+  {
     return true;
-    }
+  }
 
   // There is no point of calling storescu if no-one is listening
   if (!d->DCMQRSCPProcess)
-    {
+  {
     return false;
-    }
+  }
 
   QProcess storeSCU(this);
   // usage of storescu:
-  // storescu -aec CTK_AE -aet CTK_AE localhost 11112 ./CMakeExternals/Source/CTKData/Data/DICOM/MRHEAD/*.IMA
+  // storescu -aec CTK_AE -aet CTK_AE localhost 11112 ./CTKData/Data/DICOM/MRHEAD/*.IMA
   QStringList storescuArgs;
   storescuArgs << "-aec" << "CTK_AE";
   storescuArgs << "-aet" << "CTK_AE";
   storescuArgs << "localhost" <<  QString::number(d->DCMQRSCPPort);
   storescuArgs << data;
-  
+
   storeSCU.start(d->StoreSCUExecutable, storescuArgs);
   bool res = storeSCU.waitForFinished(-1);
 

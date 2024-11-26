@@ -29,42 +29,52 @@
 int ctkDICOMIndexerAppTest1(int argc, char * argv [])
 {
   QCoreApplication app(argc, argv);
+
+  QStringList arguments = app.arguments();
+  QString testName = arguments.takeFirst();
+
   QString database("test.db");
 
-  if (argc < 2)
-    {
-    std::cerr << "Must specify path to ctkDICOMIndexer on command line\n";
+  if (arguments.count() != 1)
+  {
+    std::cerr << "Usage: " << qPrintable(testName)
+              << " <path-to-ctkDICOMIndexer-executable>" << std::endl;
     return EXIT_FAILURE;
-    }
-  std::cout << "Testing ctkDICOMIndexer: " << argv[1] << "\n";
-  QString command = QString(argv[1]);
+  }
+
+  QString command = arguments.at(0);
 
   QStringList parameters;
   parameters << "--init" << database;
+
+  std::cout << "Testing:\n"
+            << qPrintable(command) << " "
+            << qPrintable(parameters.join(" ")) << std::endl;
+
   int res = QProcess::execute(command, parameters);
   if (res != EXIT_SUCCESS)
-    {
+  {
     std::cerr << '\"' << qPrintable(command + " " + parameters.join(" ")) << '\"'
               << " returned " << res << std::endl;
     return res;
-    }
+  }
   parameters.clear();
   parameters << "--add" << database << ".";
   res = QProcess::execute(command, parameters);
   if (res != EXIT_SUCCESS)
-    {
+  {
     std::cerr << '\"' << qPrintable(command + " " + parameters.join(" ")) << '\"'
               << " returned " << res << std::endl;
     return res;
-    }
+  }
   parameters.clear();
   parameters << "--cleanup" << database;
   res = QProcess::execute(command, parameters);
   if (res != EXIT_SUCCESS)
-    {
+  {
     std::cerr << '\"' << qPrintable(command + " " + parameters.join(" ")) << '\"'
               << " returned " << res << std::endl;
     return res;
-    }
+  }
   return res;
 }

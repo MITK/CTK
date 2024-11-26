@@ -35,24 +35,34 @@ int ctkDICOMThumbnailListWidgetTest1( int argc, char * argv [] )
 {
   QApplication app(argc, argv);
 
-  if (argc <= 2)
-    {
+  QStringList arguments = app.arguments();
+  QString testName = arguments.takeFirst();
+
+  bool interactive = arguments.removeOne("-I");
+
+  if (arguments.count() != 2)
+  {
     std::cerr << "Warning, no sql file given. Test stops" << std::endl;
-    std::cerr << "Usage: qctkDICOMModelTest1 <scratch.db> <dumpfile.sql>" << std::endl;
+    std::cerr << "Usage: " << qPrintable(testName)
+              << " <scratch.db> <dumpfile.sql>" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
+
+  QString databaseFile(arguments.at(0));
+  QString sqlFileName(arguments.at(1));
 
   try
-    {
+  {
     QFileInfo databasePath;
-    databasePath.setFile(argv[1]);
+    databasePath.setFile(databaseFile);
     ctkDICOMDatabase myCTK( databasePath.absoluteFilePath() );
 
-    if (!myCTK.initializeDatabase(argv[2]))
-      {
-      std::cerr << "Error when initializing the data base: " << argv[2]
-                << " error: " << myCTK.lastError().toStdString();
-      }
+    if (!myCTK.initializeDatabase(sqlFileName.toUtf8()))
+    {
+      std::cerr << "Error when initializing the data base: " << qPrintable(sqlFileName)
+                << " error: " << qPrintable(myCTK.lastError()) << std::endl;
+      return EXIT_FAILURE;
+    }
 
     ctkDICOMModel model;
     model.setDatabase(myCTK.database());
@@ -62,16 +72,16 @@ int ctkDICOMThumbnailListWidgetTest1( int argc, char * argv [] )
     widget.addThumbnails(model.index(0,0));
     widget.show();
 
-    if (argc <= 3 || QString(argv[3]) != "-I")
-      {
-      QTimer::singleShot(200, &app, SLOT(quit()));
-      }
-    return app.exec();
-    }
-  catch (...)
+    if (!interactive)
     {
+      QTimer::singleShot(200, &app, SLOT(quit()));
+    }
+    return app.exec();
+  }
+  catch (...)
+  {
     std::cerr << "Error" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   return EXIT_FAILURE;
 }

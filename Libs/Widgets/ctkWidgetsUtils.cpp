@@ -47,14 +47,14 @@ QString ctk::base64HTMLImageTagSrc(const QImage& image)
 QImage ctk::grabWidget(QWidget* widget, QRect rectangle)
 {
   if (!widget)
-    {
+  {
     return QImage();
-    }
+  }
   if (!rectangle.isValid())
-    {
+  {
     // Let Qt trigger layout mechanism and compute widget size.
     rectangle = QRect(0,0,-1,-1);
-    }
+  }
   QPixmap widgetPixmap = widget->grab(rectangle);
   QImage widgetImage = widgetPixmap.toImage();
   QPainter painter;
@@ -64,23 +64,23 @@ QImage ctk::grabWidget(QWidget* widget, QRect rectangle)
 #else
   foreach(QOpenGLWidget* glWidget, widget->findChildren<QOpenGLWidget*>())
 #endif
-    {
+  {
     if (!glWidget->isVisible())
-      {
+    {
       continue;
-      }
+    }
     QRect subWidgetRect = QRect(glWidget->mapTo(widget, QPoint(0,0)), glWidget->size());
     if (!rectangle.intersects(subWidgetRect))
-      {
+    {
       continue;
-      }
+    }
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
     QImage subImage = glWidget->grabFrameBuffer();
 #else
     QImage subImage = glWidget->grabFramebuffer();
 #endif
     painter.drawImage(subWidgetRect, subImage);
-    }
+  }
   painter.end();
   return widgetImage;
 }
@@ -97,27 +97,27 @@ QImage ctk::kwIconToQImage(const unsigned char *data, int width, int height, int
   if (bufferLength != expectedLength &&
       static_cast<unsigned char>(imageData[0]) != 0x78 &&
       static_cast<unsigned char>(imageData[1]) != 0xDA)
-    {
+  {
     imageData = QByteArray::fromBase64(imageData);
     bufferLength = imageData.size();
-    }
+  }
 
   if (bufferLength != expectedLength &&
       static_cast<unsigned char>(imageData[0]) == 0x78 &&
       static_cast<unsigned char>(imageData[1]) == 0xDA)
-    {
+  {
     imageData.prepend(static_cast<char>((expectedLength >> 0) & 0xFF));
     imageData.prepend(static_cast<char>((expectedLength >> 8) & 0xFF));
     imageData.prepend(static_cast<char>((expectedLength >> 16) & 0xFF));
     imageData.prepend(static_cast<char>((expectedLength >> 24) & 0xFF));
     imageData = qUncompress(imageData);
-    }
+  }
   QImage image(reinterpret_cast<unsigned char*>(imageData.data()),
                width, height, width * pixelSize,
                pixelSize == 4 ? QImage::Format_ARGB32 : QImage::Format_RGB888);
   if (pixelSize == 4)
-    {
+  {
     return image.rgbSwapped();
-    }
+  }
   return image.copy();
 }

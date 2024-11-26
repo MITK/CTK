@@ -45,11 +45,11 @@ protected:
   ctkVTKConnection* const q_ptr;
 public:
   enum
-    {
+  {
     ARG_UNKNOWN = 0,
     ARG_VTKOBJECT_AND_VTKOBJECT,
     ARG_VTKOBJECT_VOID_ULONG_VOID
-    };
+  };
 
   typedef ctkVTKConnectionPrivate Self;
   ctkVTKConnectionPrivate(ctkVTKConnection& object);
@@ -61,12 +61,12 @@ public:
 
   bool IsSameQtSlot(const char* qt_slot)const;
 
-  /// 
+  ///
   /// VTK Callback
   static void DoCallback(vtkObject* vtk_obj, unsigned long event,
                          void* client_data, void* call_data);
 
-  /// 
+  ///
   /// Called by 'DoCallback' to emit signal
   void execute(vtkObject* vtk_obj, unsigned long vtk_event, void* client_data, void* call_data);
 

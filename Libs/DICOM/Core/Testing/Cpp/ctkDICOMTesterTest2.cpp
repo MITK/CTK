@@ -29,22 +29,20 @@
 #include <iostream>
 #include <cstdlib>
 
-void ctkDICOMTesterTest2PrintUsage()
-{
-  std::cout << " ctkDICOMTesterTest2 images" << std::endl;
-}
 
 int ctkDICOMTesterTest2(int argc, char * argv [])
 {
   QCoreApplication app(argc, argv);
 
   QStringList arguments = app.arguments();
-  arguments.pop_front();
+  QString testName = arguments.takeFirst();
+
   if (!arguments.count())
-    {
-    ctkDICOMTesterTest2PrintUsage();
+  {
+    std::cerr << "Usage: " << qPrintable(testName)
+              << " <path-to-image> [...]" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   ctkDICOMTester tester;
   tester.startDCMQRSCP();
@@ -52,11 +50,10 @@ int ctkDICOMTesterTest2(int argc, char * argv [])
   bool res = tester.storeData(arguments);
 
   if (!res)
-    {
+  {
     std::cout << "Can't store data" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }
-
