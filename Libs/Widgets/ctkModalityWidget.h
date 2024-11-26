@@ -103,7 +103,11 @@ Q_SIGNALS:
   void selectedModalitiesChanged(const QStringList modalities);
 
 protected Q_SLOTS:
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 7, 0))
+  void onAnyChanged(Qt::CheckState state);
+#else
   void onAnyChanged(int state);
+#endif
   void onModalityChecked(bool);
 
 protected:
