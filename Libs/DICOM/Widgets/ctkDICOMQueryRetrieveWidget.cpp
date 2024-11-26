@@ -503,7 +503,7 @@ void ctkDICOMQueryRetrieveWidget::updateRetrieveProgress(int value)
     d->ProgressDialog->resize(targetWidth, d->ProgressDialog->height());
   }
   d->ProgressDialog->setValue( value );
-  logger.error(QString("setting value to %1").arg(value) );
+  logger.debug(QString("setting value to %1").arg(value) );
   QApplication::processEvents();
 }
 
