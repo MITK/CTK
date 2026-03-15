@@ -29,7 +29,7 @@
 macro(ctkMacroBuildLib)
   ctkMacroParseArguments(MY
     "NAME;EXPORT_DIRECTIVE;SRCS;MOC_SRCS;GENERATE_MOC_SRCS;UI_FORMS;INCLUDE_DIRECTORIES;TARGET_LIBRARIES;RESOURCES;LIBRARY_TYPE;EXPORT_CUSTOM_CONTENT_FROM_VARIABLE"
-    "ENABLE_QTTESTING"
+    "ENABLE_QTTESTING;NO_SOURCE_GROUPS"
     ${ARGN}
     )
 
@@ -142,17 +142,19 @@ ${${MY_EXPORT_CUSTOM_CONTENT_FROM_VARIABLE}}
     endif()
   endif()
 
-  source_group("Resources" FILES
-    ${MY_RESOURCES}
-    ${MY_UI_FORMS}
-    )
+  if(NOT MY_NO_SOURCE_GROUPS)
+    source_group("Resources" FILES
+      ${MY_RESOURCES}
+      ${MY_UI_FORMS}
+      )
 
-  source_group("Generated" FILES
-    ${MY_QRC_SRCS}
-    ${MY_MOC_CPP}
-    ${MY_UI_CPP}
-    ${MOC_CPP_DECORATOR}
-    )
+    source_group("Generated" FILES
+      ${MY_QRC_SRCS}
+      ${MY_MOC_CPP}
+      ${MY_UI_CPP}
+      ${MOC_CPP_DECORATOR}
+      )
+  endif()
 
   add_library(${lib_name} ${MY_LIBRARY_TYPE}
     ${MY_SRCS}
