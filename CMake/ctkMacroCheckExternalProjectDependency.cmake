@@ -483,6 +483,7 @@ function(_sb_get_external_project_arguments proj varname)
     CMAKE_JOB_POOL_COMPILE:STRING
     CMAKE_JOB_POOL_LINK:STRING
     CMAKE_JOB_POOLS:STRING
+    CMAKE_VS_GLOBALS:STRING
     )
   if(NOT CMAKE_VERSION VERSION_LESS "3.16")
     list(APPEND _options
@@ -494,8 +495,12 @@ function(_sb_get_external_project_arguments proj varname)
   foreach(_cmake_option_and_type IN LISTS _options)
     _sb_extract_varname_and_vartype(${_cmake_option_and_type} _cmake_option _cmake_option_type)
     if(DEFINED ${_cmake_option})
+      # Multi-value options have to be joined with <EP_LIST_SEPARATOR>, since
+      # ExternalProject_Add is called with a matching LIST_SEPARATOR. Without
+      # that, each value would end up as a separate ExternalProject argument.
+      _sb_list_to_string(${EP_LIST_SEPARATOR} "${${_cmake_option}}" _cmake_option_value)
       list(APPEND _ep_arguments CMAKE_CACHE_ARGS
-        -D${_cmake_option}:${_cmake_option_type}=${${_cmake_option}}
+        "-D${_cmake_option}:${_cmake_option_type}=${_cmake_option_value}"
         )
     endif()
   endforeach()
