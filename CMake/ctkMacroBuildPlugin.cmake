@@ -51,7 +51,7 @@
 macro(ctkMacroBuildPlugin)
   CtkMacroParseArguments(MY
     "EXPORT_DIRECTIVE;SRCS;MOC_SRCS;MOC_OPTIONS;UI_FORMS;INCLUDE_DIRECTORIES;EXPORTED_INCLUDE_SUFFIXES;TARGET_LIBRARIES;RESOURCES;CACHED_RESOURCEFILES;TRANSLATIONS;OUTPUT_DIR"
-    "TEST_PLUGIN;NO_INSTALL"
+    "TEST_PLUGIN;NO_INSTALL;NO_SOURCE_GROUPS"
     ${ARGN}
     )
 
@@ -237,15 +237,17 @@ macro(ctkMacroBuildPlugin)
       )
   endif()
 
-  source_group("Resources" FILES
-    ${MY_RESOURCES}
-    ${MY_UI_FORMS}
-    ${MY_TRANSLATIONS}
-    )
+  if(NOT MY_NO_SOURCE_GROUPS)
+    source_group("Resources" FILES
+      ${MY_RESOURCES}
+      ${MY_UI_FORMS}
+      ${MY_TRANSLATIONS}
+      )
 
-  source_group("Generated" FILES
-    ${_plugin_qm_files}
-    )
+    source_group("Generated" FILES
+      ${_plugin_qm_files}
+      )
+  endif()
 
   add_library(${lib_name} ${MY_LIBRARY_TYPE}
     ${MY_SRCS}

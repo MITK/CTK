@@ -27,7 +27,7 @@
 macro(ctkMacroBuildApp)
   ctkMacroParseArguments(MY
     "NAME;SRCS;MOC_SRCS;UI_FORMS;INCLUDE_DIRECTORIES;TARGET_LIBRARIES;RESOURCES"
-    "INSTALL"
+    "INSTALL;NO_SOURCE_GROUPS"
     ${ARGN}
     )
 
@@ -70,10 +70,12 @@ macro(ctkMacroBuildApp)
     ${my_library_dirs}
     )
 
-  source_group("Resources" FILES
-    ${MY_RESOURCES}
-    ${MY_UI_FORMS}
-    )
+  if(NOT MY_NO_SOURCE_GROUPS)
+    source_group("Resources" FILES
+      ${MY_RESOURCES}
+      ${MY_UI_FORMS}
+      )
+  endif()
 
   # Create executable
   ctk_add_executable_utf8(${proj_name}

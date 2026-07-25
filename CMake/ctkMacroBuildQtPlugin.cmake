@@ -26,7 +26,7 @@
 #! \ingroup CMakeAPI
 macro(ctkMacroBuildQtPlugin)
   cmake_parse_arguments(MY
-    "" # no options
+    "NO_SOURCE_GROUPS" # options
     "NAME;EXPORT_DIRECTIVE;FOLDER;PLUGIN_DIR" # one value args
     "SRCS;MOC_SRCS;UI_FORMS;INCLUDE_DIRECTORIES;TARGET_LIBRARIES;RESOURCES" # multi value args
     ${ARGN}
@@ -80,10 +80,12 @@ macro(ctkMacroBuildQtPlugin)
   set(dynamicHeaders
     "${dynamicHeaders};${CMAKE_CURRENT_BINARY_DIR}/${MY_EXPORT_HEADER_PREFIX}Export.h")
 
-  source_group("Resources" FILES
-    ${MY_RESOURCES}
-    ${MY_UI_FORMS}
-    )
+  if(NOT MY_NO_SOURCE_GROUPS)
+    source_group("Resources" FILES
+      ${MY_RESOURCES}
+      ${MY_UI_FORMS}
+      )
+  endif()
 
   add_library(${lib_name} ${MY_LIBRARY_TYPE}
     ${MY_SRCS}
