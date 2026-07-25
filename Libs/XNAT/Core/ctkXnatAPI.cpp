@@ -53,7 +53,7 @@ QUuid ctkXnatAPI::get(const QString& resource, const Parameters& parameters, con
   urlQuery.addQueryItem("format", "json");
   url.setQuery(urlQuery);
   QNetworkReply* queryReply = this->sendRequest(QNetworkAccessManager::GetOperation, url, rawHeaders);
-  QUuid queryId = queryReply->property("uuid").toString();
+  QUuid queryId(queryReply->property("uuid").toString());
   return queryId;
 }
 
